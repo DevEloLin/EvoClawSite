@@ -5,12 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Primary SEO -->
-<title>EvoClaw — Local-first Self-evolving AI Agent Runtime in Rust | Secret-redacted, ACP &amp; MCP, ~70% token cost cut</title>
-<meta name="description" content="EvoClaw is an open-source, local-first, self-evolving AI agent runtime written in Rust. Built-in secret-redaction barrier keeps API keys out of the model API. Standard ACP and MCP interop with Claude Code, Codex, Cursor, GitHub Copilot, and Anthropic MCP servers. Runs on macOS, Linux, Windows. ~70% token cost reduction on long sessions.">
+<title>EvoClaw — Self-evolving Personal AI Assistant in Rust | Local-first, secret-redacted, ACP &amp; MCP, 17 models</title>
+<meta name="description" content="EvoClaw is an open-source self-evolving personal AI assistant you run on your own machine, written in Rust. It learns from every task into a YAML skill tree, scrubs secrets at the runtime boundary so API keys never reach the model, and ships standard ACP / MCP interop with Claude Code, Codex, Cursor, GitHub Copilot, Gemini, Aider, Qwen Code, and 7 MCP servers. 17 model vendors built in, including DeepSeek, Kimi, Qwen, Doubao, Zhipu, Baidu, MiniMax, StepFun, Tencent Hunyuan, OpenAI, Anthropic, Mistral, Groq. ~70% token cost reduction on long sessions. macOS, Linux, Windows.">
 <meta name="keywords" content="EvoClaw, AI agent runtime, local-first agent, self-evolving agent, Rust agent runtime, open source agent runtime, Agent Client Protocol, ACP, Model Context Protocol, MCP, Claude Code CLI, Codex CLI, Cursor CLI, GitHub Copilot CLI, secret redaction, secret vault, API key safety, prompt redaction, JSONL session log, skill tree, EWMA score, reflection distillation, token economy, prompt caching, ephemeral cache, schema fingerprint, head tail truncation, summary working memory, tag level compression, OpenAI compatible, Anthropic, DeepSeek, Kimi, Qwen, OpenRouter, Ollama, vLLM, llama.cpp, on-device AI, privacy-first AI, audit log agent, append-only JSONL, self-hosted AI, agent CLI, REPL, agent shell, autonomous agent, terminal AI assistant, developer productivity, devops AI, SRE AI">
 <meta name="author" content="EvoClaw Contributors">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#0f1115">
+
+<!-- Favicons -->
+<link rel="icon"             type="image/png" sizes="32x32"  href="image/favicon-32.png">
+<link rel="icon"             type="image/png" sizes="64x64"  href="image/favicon-64.png">
+<link rel="icon"             type="image/png" sizes="256x256" href="image/favicon-256.png">
+<link rel="apple-touch-icon" sizes="180x180"                 href="image/apple-touch-icon.png">
+<link rel="shortcut icon"    type="image/png"                 href="image/favicon-64.png">
+
 <link rel="canonical" href="https://develolin.github.io/EvoClawSite/">
 <link rel="alternate" hreflang="en" href="https://develolin.github.io/EvoClawSite/">
 <link rel="alternate" hreflang="zh-CN" href="https://develolin.github.io/EvoClawSite/zh.html">
@@ -21,6 +29,8 @@
 <meta property="og:title" content="EvoClaw — Local-first Self-evolving AI Agent Runtime in Rust">
 <meta property="og:description" content="Open-source agent runtime that keeps your secrets local, learns from every task, and cuts long-session token cost by ~70%. ACP + MCP standard interop. macOS, Linux, Windows.">
 <meta property="og:url" content="https://develolin.github.io/EvoClawSite/">
+<meta property="og:image" content="https://develolin.github.io/EvoClawSite/image/EvoClaw2.png">
+<meta property="og:image:alt" content="EvoClaw — local-first self-evolving AI agent runtime in Rust">
 <meta property="og:site_name" content="EvoClaw">
 <meta property="og:locale" content="en_US">
 <meta property="og:locale:alternate" content="zh_CN">
@@ -28,6 +38,7 @@
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="EvoClaw — Local-first AI Agent Runtime (Rust, MIT)">
+<meta name="twitter:image" content="https://develolin.github.io/EvoClawSite/image/EvoClaw2.png">
 <meta name="twitter:description" content="Self-evolving AI agent runtime. Secrets never leave your machine. ACP + MCP interop. Open-source, MIT.">
 
 <!-- JSON-LD: SoftwareApplication -->
@@ -39,7 +50,7 @@
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "macOS, Linux, Windows",
   "description": "Local-first self-evolving AI agent runtime in Rust with built-in secret-redaction barrier and standard ACP / MCP protocol interop.",
-  "softwareVersion": "0.1.6",
+  "softwareVersion": "0.1.9",
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -75,7 +86,7 @@
     {"@type":"Question","name":"Which models and providers does EvoClaw support?","acceptedAnswer":{"@type":"Answer","text":"DeepSeek, Kimi, Qwen, OpenAI, OpenRouter, Anthropic, GitHub Copilot (OAuth Device Flow), plus any OpenAI-compatible local endpoint (Ollama, vLLM, llama.cpp). Through ACP, the agent loop can be delegated to Claude Code, Codex, Cursor, or GitHub Copilot CLI."}},
     {"@type":"Question","name":"How is the token cost reduced?","acceptedAnswer":{"@type":"Answer","text":"EvoClaw stacks five techniques: tool-schema fingerprint with 10-turn reset, ephemeral cache markers, head+tail observation truncation, summary working-memory protocol, and tag-level periodic compression every five turns. Together a long task lands at roughly one third of the naive spend; cache_hit_rate stays above 60 percent."}},
     {"@type":"Question","name":"Where is the data stored?","acceptedAnswer":{"@type":"Answer","text":"All state lives under ~/.evoclaw on the user machine: config.toml, logs/{task_id}.jsonl, skills/*.yaml, memory/{L0..L5}.jsonl, secrets/vault.json (chmod 600), agents/*.toml, mcp/*.toml, cost.jsonl. Nothing is uploaded except the model API call."}},
-    {"@type":"Question","name":"Is EvoClaw production ready?","acceptedAnswer":{"@type":"Answer","text":"It is at v0.1.6. The agent loop, learning loop, redactor, ACP and MCP integrations are all wired and unit-tested with 153+ tests passing. Treat it as an early-stage runtime suitable for solo developers and small teams; production deployments should stage carefully."}}
+    {"@type":"Question","name":"Is EvoClaw production ready?","acceptedAnswer":{"@type":"Answer","text":"It is at v0.1.9. The agent loop, learning loop, redactor, ACP and MCP integrations are all wired and unit-tested with 153+ tests passing. Treat it as an early-stage runtime suitable for solo developers and small teams; production deployments should stage carefully."}}
   ]
 }
 </script>
@@ -94,6 +105,7 @@
   .nav .links a{margin-left:18px;color:var(--muted)}
   .nav .links a:hover{color:var(--accent)}
   .hero{padding:80px 32px 64px;text-align:center;background:linear-gradient(180deg,#1a2030,#0f1115)}
+  .hero .logo{display:block;width:200px;max-width:50vw;margin:0 auto 20px;filter:drop-shadow(0 8px 24px rgba(95,179,255,.18))}
   .hero h1{font-size:44px;margin:0 0 12px;letter-spacing:.5px;line-height:1.2}
   .hero h1 .accent{color:var(--accent)}
   .hero .lead{color:var(--muted);font-size:18px;max-width:780px;margin:0 auto 28px}
@@ -146,7 +158,8 @@
 </nav>
 
 <header class="hero">
-  <h1>The <span class="accent">local-first</span>, self-evolving AI agent runtime in Rust.</h1>
+  <img class="logo" src="image/EvoClaw2.png" alt="EvoClaw" width="200" height="200">
+  <h1>The <span class="accent">self-evolving</span> personal AI assistant in Rust.</h1>
   <p class="lead">EvoClaw runs the agent loop on your laptop. It learns from every task, scrubs secrets before they reach the model API, and cuts long-session token cost by roughly 70 percent. ACP + MCP standard interop. MIT licensed.</p>
   <div class="cta">
     <a class="primary" href="https://github.com/DevEloLin/evoclaw" target="_blank" rel="noopener">Star on GitHub →</a>
@@ -325,7 +338,7 @@ evoclaw replay
     <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/installation.md">Installation</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/getting-started.md">Getting started</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/usage.md">Usage reference</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/architecture.md">Architecture</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/contributing.md">Contributing</a></li>
     <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/agents.md">External ACP agents</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/mcp.md">MCP servers</a></li>
     <li><a href="architecture-en.html">Architecture diagrams (EN)</a> · <a href="architecture-zh.html">中文</a> · <a href="design-en.html">Design diagrams (EN)</a> · <a href="design-zh.html">中文</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/version">Version: v0.1.6</a> — kept in sync with <a href="https://github.com/develolin/EvoClawSite/blob/main/version">EvoClawSite/version</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/version">Version: v0.1.9</a> — kept in sync with <a href="https://github.com/develolin/EvoClawSite/blob/main/version">EvoClawSite/version</a></li>
   </ul>
 </section>
 
