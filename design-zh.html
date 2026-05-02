@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>EvoClaw — 设计图</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="EvoClaw 设计图：Task / Skill / Memory 状态机、ER 模型、端到端时序图、密钥隔离屏障、ACP / MCP 互通、闭环验收矩阵。">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161a22; --panel2:#1d222c; --line:#2a3140;
+    --text:#e6e9ef; --muted:#8b94a7; --accent:#5fb3ff; --good:#4ade80; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB",sans-serif;line-height:1.6}
+  header{padding:32px 48px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#1a2030,#0f1115)}
+  header h1{margin:0;font-size:28px;letter-spacing:.5px}
+  header .sub{color:var(--muted);margin-top:6px;font-size:14px}
+  header .lang{margin-top:8px;font-size:12px}
+  header .lang a{color:var(--accent);text-decoration:none;margin-right:14px}
+  main{max-width:1380px;margin:0 auto;padding:24px 32px 80px}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px 28px;margin:24px 0}
+  section h2{margin:0 0 8px;font-size:20px;color:var(--accent)}
+  section h3{color:var(--muted);font-size:14px;margin:16px 0 8px}
+  section p.lede{color:var(--muted);margin:0 0 16px;font-size:14px}
+  .mermaid{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:16px;overflow:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600;background:var(--panel2)}
+  code{background:var(--panel2);padding:1px 6px;border-radius:4px;font-size:12.5px}
+  .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-right:6px}
+  .pill.good{color:var(--good);border-color:#1f3a2a}
+  .pill.warn{color:var(--warn);border-color:#3a2f17}
+  .pill.bad{color:var(--bad);border-color:#3a1d1d}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:980px){.grid2{grid-template-columns:1fr}}
+  nav.toc{position:sticky;top:0;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);padding:10px 32px;border-bottom:1px solid var(--line);font-size:13px;z-index:10}
+  nav.toc a{color:var(--muted);text-decoration:none;margin-right:14px}
+  nav.toc a:hover{color:var(--accent)}
+  footer{color:var(--muted);font-size:12px;padding:24px 48px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>EvoClaw — 设计图</h1>
+  <div class="sub">状态机 · ER 模型 · 端到端时序图 · 闭环验收矩阵</div>
+  <div class="lang">
+    <a href="design-en.html">English</a> · <a href="design-zh.html">中文</a> · <a href="architecture-zh.html">← 系统架构</a>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#task-fsm">Task 状态机</a>
+  <a href="#skill-fsm">Skill 状态机</a>
+  <a href="#memory-fsm">Memory 状态机</a>
+  <a href="#er">ER 模型</a>
+  <a href="#seq-task">任务时序</a>
+  <a href="#seq-acp">ACP 时序</a>
+  <a href="#seq-mcp">MCP 时序</a>
+  <a href="#perm">权限阶梯</a>
+  <a href="#closure">闭环矩阵</a>
+</nav>
+
+<main>
+
+<section id="task-fsm">
+  <h2>1. Task 生命周期 FSM</h2>
+  <p class="lede">每条任务必经 REFLECTING。不允许 OBSERVING 直接跳 COMPLETED。终态唯一出口 ARCHIVED。</p>
+  <div class="mermaid">
+stateDiagram-v2
+  [*] --> RECEIVED
+  RECEIVED --> PLANNING: 解析成功
+  RECEIVED --> FAILED: 解析失败 或 权限拒绝 或 预算用尽
+  PLANNING --> TOOL_EXECUTING: 计划就绪
+  PLANNING --> AWAITING_USER: 关键参数缺失
+  TOOL_EXECUTING --> OBSERVING: 工具返回
+  OBSERVING --> TOOL_EXECUTING: 仍有未完成步骤
+  OBSERVING --> AWAITING_USER: 高危 或 歧义
+  OBSERVING --> REFLECTING: 计划完成
+  AWAITING_USER --> TOOL_EXECUTING: 用户批准
+  AWAITING_USER --> FAILED: 用户拒绝 或 超时 10min
+  REFLECTING --> DISTILLING: success true
+  REFLECTING --> FAILED: success false
+  DISTILLING --> COMPLETED: 写回 skill plus memory
+  COMPLETED --> ARCHIVED: T plus 30 天
+  FAILED --> ARCHIVED: T plus 30 天
+  ARCHIVED --> [*]
+  </div>
+  <p class="lede" style="margin-top:8px">
+    <span class="pill">RECEIVED + PLANNING &le; 60s</span>
+    <span class="pill">AWAITING_USER 默认超时 10min</span>
+    <span class="pill warn">REFLECTING 强制路径</span>
+    <span class="pill bad">无 ARCHIVED 旁路</span>
+  </p>
+</section>
+
+<section id="skill-fsm">
+  <h2>2. Skill 生命周期 FSM</h2>
+  <p class="lede">评分采用 EWMA。低于 0.3 自动 DEPRECATED。用户 correction 是最强负权信号。</p>
+  <div class="grid2">
+    <div>
+      <h3>2.1 状态转移</h3>
+      <div class="mermaid">
+stateDiagram-v2
+  [*] --> DRAFT
+  DRAFT --> CANDIDATE: 沙箱通过
+  DRAFT --> DEPRECATED: 沙箱连续失败 三次
+  CANDIDATE --> ACTIVE: 真实成功 三次以上 且 score 0.7 以上
+  CANDIDATE --> DEGRADED: score 在 0.3 至 0.7
+  ACTIVE --> DEGRADED: score 跌入 0.3 至 0.7
+  DEGRADED --> ACTIVE: score 0.7 以上 且 近 5 次成功率 80 以上
+  DEGRADED --> DEPRECATED: score 低于 0.3 或 连续失败 5 次
+  DEPRECATED --> ARCHIVED: T plus 30 天 或 被合并
+  ACTIVE --> ARCHIVED: 被合并
+  CANDIDATE --> ARCHIVED: 被合并
+  ARCHIVED --> [*]
+      </div>
+    </div>
+    <div>
+      <h3>2.2 score 更新</h3>
+      <table>
+        <thead><tr><th>事件</th><th>公式</th><th>权重</th></tr></thead>
+        <tbody>
+          <tr><td>成功一次</td><td><code>0.9 * s + 0.1 * 1.0</code></td><td>普通</td></tr>
+          <tr><td>失败一次</td><td><code>0.9 * s + 0.1 * 0.0</code></td><td>普通</td></tr>
+          <tr><td>沙箱通过</td><td><code>max(s, 0.6)</code></td><td>晋级</td></tr>
+          <tr><td>沙箱失败</td><td><code>s * 0.5</code></td><td>降级</td></tr>
+          <tr><td>thumbs-up</td><td><code>min(1, s + 0.1)</code></td><td><span class="pill good">强</span></td></tr>
+          <tr><td>thumbs-down</td><td><code>s * 0.7</code></td><td><span class="pill warn">强</span></td></tr>
+          <tr><td>用户 correction</td><td><code>s * 0.5</code> + revise</td><td><span class="pill bad">最强</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="memory-fsm">
+  <h2>3. Memory 层 FSM 与 GC</h2>
+  <p class="lede">L0 / L1 永久。L2 / L3 到期迁移。GC 仅清理低置信度且长期未读的条目。</p>
+  <div class="mermaid">
+stateDiagram-v2
+  [*] --> L3_RECENT: 任务结束写入
+  L3_RECENT --> L4_SKILL: 蒸馏成 skill
+  L3_RECENT --> L5_ARCHIVE: 90 天未读且无 skill
+  L3_RECENT --> GC: confidence 低于 0.2 且 60 天未读
+  L4_SKILL --> L5_ARCHIVE: 关联 skill 进入 ARCHIVED
+  L4_SKILL --> GC: confidence 低于 0.2 且 60 天未读
+  L5_ARCHIVE --> GC: 365 天 且 confidence 低于 0.2
+  L0_PERM: L0 核心规则永久
+  L1_PREF: L1 用户偏好仅用户撤销时删
+  L2_ENV: L2 环境事实 90 天 或 doctor 续期
+  L2_ENV --> L1_PREF: 用户提升为偏好
+  GC --> [*]
+  </div>
+  <p class="lede" style="margin-top:8px">
+    <span class="pill">L3 默认 30 天</span>
+    <span class="pill">L5 默认 365 天</span>
+    <span class="pill warn">单条 &le; 64 KB</span>
+    <span class="pill bad">写入前必经 redaction</span>
+  </p>
+</section>
+
+<section id="er">
+  <h2>4. ER 数据模型</h2>
+  <p class="lede">三主体：Task / Skill / Memory。Auth 与 Channel 旁挂。时间字段统一 RFC3339（如 <code>2026-05-02T17:52:00Z</code>）。</p>
+  <div class="mermaid">
+erDiagram
+  TASK ||--o{ TOOL_CALL : invokes
+  TASK ||--|| REFLECTION : produces
+  TASK ||--o{ AUDIT_EVENT : emits
+  TASK ||--o{ COST_EVENT : accrues
+  REFLECTION ||--o{ SKILL : creates_or_updates
+  REFLECTION ||--|| MEMORY_L3 : writes
+  SKILL ||--o{ SKILL_VERSION : versions
+  SKILL ||--o{ FAILURE_PATTERN : records
+  SKILL ||--o{ MEMORY_L4 : linked_to
+  MEMORY_L3 ||--o| MEMORY_L4 : distill_into
+  MEMORY_L3 ||--o| MEMORY_L5 : archive
+  MEMORY_L4 ||--o| MEMORY_L5 : archive_when_skill_archived
+  AUTH_RECORD ||--o{ TOOL_CALL : authorizes
+  CHANNEL_SENDER ||--o{ TASK : originates
+  POLICY_RULE ||--o{ AUDIT_EVENT : evaluates
+  VAULT_ENTRY ||--o{ AUDIT_EVENT : substituted_in
+
+  TASK {
+    string task_id PK
+    string user_input_safe
+    string source
+    string selected_model
+    string state
+    string started_at
+    string finished_at
+  }
+  SKILL {
+    string id PK
+    string kind
+    int    version
+    float  score
+    string state
+    string created_from_task FK
+  }
+  MEMORY_L3 {
+    string id PK
+    string content
+    float  confidence
+    string ts
+    string source
+  }
+  VAULT_ENTRY {
+    string name PK
+    string value_redacted
+    string kind
+    string fingerprint
+    string created_at
+  }
+  </div>
+</section>
+
+<section id="seq-task">
+  <h2>5. 端到端时序（单任务）</h2>
+  <p class="lede">从用户输入到 ARCHIVED。注意 redactor 在三个边界点都会脱敏。</p>
+  <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant CLI as evoclaw CLI
+  participant RED as Redactor
+  participant RT as ConversationRuntime
+  participant PROV as Provider
+  participant TOOL as Tool Registry
+  participant SK as Skill Tree
+  participant MEM as Memory
+  participant LOG as JSONL Log
+
+  U->>CLI: 输入任务
+  CLI->>RED: scrub user_input
+  RED-->>CLI: user_input_safe
+  CLI->>RT: run(user_input_safe)
+  RT->>LOG: 写 Task 记录
+
+  loop 直到不再请求工具
+    RT->>PROV: stream(messages, tools)
+    PROV-->>RT: assistant_text + tool_calls
+    RT->>RED: scrub assistant_text 与 args
+    RED-->>RT: scrubbed
+    alt 有工具调用
+      RT->>TOOL: invoke(call)
+      TOOL-->>RT: result
+      RT->>RED: scrub result
+      RED-->>RT: result_safe
+      RT->>LOG: 写 Turn 记录
+    end
+  end
+
+  RT->>PROV: 反思回合
+  PROV-->>RT: ReflectionRecord
+  RT->>SK: 蒸馏 + upsert skill
+  RT->>MEM: 写 L3 记录
+  RT->>LOG: 写 End 记录
+  RT-->>CLI: final_text
+  CLI-->>U: 输出
+  </div>
+</section>
+
+<section id="seq-acp">
+  <h2>6. ACP 委派循环</h2>
+  <p class="lede">当 provider 是 <code>acp:&lt;id&gt;</code> 时，EvoClaw 把上游 CLI spawn 成子进程，通过 ACP 把 prompt 喂过去。</p>
+  <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant RT as ConversationRuntime
+  participant AP as AcpProvider
+  participant CHILD as 外部 CLI
+  participant LOG as JSONL Log
+
+  U->>RT: run(user_input_safe)
+  RT->>AP: stream(req)
+  AP->>CHILD: spawn claude --acp
+  AP->>CHILD: initialize 握手
+  CHILD-->>AP: serverInfo
+  AP->>CHILD: session/new
+  CHILD-->>AP: session_id
+  AP->>CHILD: session/prompt(text)
+  CHILD-->>AP: 最终文本
+  AP-->>RT: stream events
+  RT->>LOG: 写 Turn 与 End
+  Note over CHILD: kill_on_drop true 自动 reap 子进程
+  </div>
+</section>
+
+<section id="seq-mcp">
+  <h2>7. MCP 工具调用</h2>
+  <p class="lede">MCP 工具在 ToolRegistry 中以 <code>mcp__&lt;server&gt;__&lt;tool&gt;</code> 命名。鉴权 env 模型完全看不见。</p>
+  <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant RT as ConversationRuntime
+  participant TR as ToolRegistry
+  participant W as McpToolWrapper
+  participant SRV as MCP Server
+  participant LOG as JSONL Log
+
+  Note over TR: install_all 启动期 spawn 每个 server
+  TR->>W: 注册 mcp_github_list_issues
+  RT->>TR: invoke(mcp_github_list_issues, args)
+  TR->>W: run(ctx, args)
+  W->>SRV: tools call name args
+  SRV-->>W: ToolCallResult content isError
+  W-->>TR: 渲染后的文本
+  TR-->>RT: scrubbed result
+  RT->>LOG: 写 Turn
+  </div>
+</section>
+
+<section id="perm">
+  <h2>8. 权限阶梯</h2>
+  <p class="lede">权限是全序阶梯 P0 ≤ P1 ≤ … ≤ P8。默认上限 P1；渠道硬封顶 P4。每个工具描述 ≤ 80 字符。</p>
+  <div class="mermaid">
+flowchart LR
+  classDef p0 fill:#0f3a2a,stroke:#34d399,color:#fff
+  classDef p1 fill:#0f3a44,stroke:#22d3ee,color:#fff
+  classDef p2 fill:#1a2f4a,stroke:#5fb3ff,color:#fff
+  classDef p3 fill:#2a1f4a,stroke:#a78bfa,color:#fff
+  classDef p4 fill:#3a2f0a,stroke:#facc15,color:#fff
+  classDef p5 fill:#3a210a,stroke:#fb923c,color:#fff
+  classDef p6 fill:#3a1414,stroke:#f87171,color:#fff
+  classDef p7 fill:#3a1424,stroke:#ec4899,color:#fff
+  classDef p8 fill:#1a0014,stroke:#ec4899,color:#fff
+
+  P0[P0 只读 read_file list_dir ask_user]:::p0
+  P1[P1 workspace 写 write_file patch_file]:::p1
+  P2[P2 本地安全 shell run_shell]:::p2
+  P3[P3 网络 web_fetch 与 MCP]:::p3
+  P4[P4 渠道封顶 浏览器类操作]:::p4
+  P5[P5 用户目录写]:::p5
+  P6[P6 系统修改]:::p6
+  P7[P7 凭证操作]:::p7
+  P8[P8 生产环境]:::p8
+  P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> P8
+  </div>
+</section>
+
+<section id="closure">
+  <h2>9. 闭环验收矩阵（审计员清单）</h2>
+  <p class="lede"><code>evoclaw doctor closure</code> 扫 <code>~/.evoclaw/logs/*.jsonl</code> 校对每一行。所有会话每行通过才算闭环。</p>
+  <table>
+    <thead><tr><th>#</th><th>Producer</th><th>Consumer</th><th>不变量</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Runtime</td><td>JSONL log</td><td>每个任务首部恰好一条 Task 记录</td></tr>
+      <tr><td>2</td><td>Runtime</td><td>JSONL log</td><td>每个任务有 &ge; 1 条 Turn 记录</td></tr>
+      <tr><td>3</td><td>Redactor</td><td>Task / Turn / End</td><td>无字段含已注册 vault 值或已知密钥模式</td></tr>
+      <tr><td>4</td><td>Runtime</td><td>JSONL log</td><td>每个任务恰好一条 End 记录</td></tr>
+      <tr><td>5</td><td>Runtime</td><td>End 记录</td><td>state 是 COMPLETED 或 FAILED，永不为空</td></tr>
+      <tr><td>6</td><td>Reflection</td><td>Memory L3</td><td>已完成任务 &rarr; 一条 L3 写入</td></tr>
+      <tr><td>7</td><td>Distillation</td><td>Skill YAML</td><td>已完成任务 &rarr; 0 或 1 条 DRAFT skill upsert</td></tr>
+      <tr><td>8</td><td>CostEngine</td><td>cost.jsonl</td><td>每条 Turn &rarr; 一条 CostEvent (best-effort)</td></tr>
+      <tr><td>9</td><td>Provider</td><td>Audit Bus</td><td>预算超限 &rarr; HardStop 事件入库</td></tr>
+      <tr><td>10</td><td>ACP child</td><td>OS</td><td>kill_on_drop 自动 reap，跑完无僵尸</td></tr>
+      <tr><td>11</td><td>MCP child</td><td>OS</td><td>同 #10 — 每个 spawn 出来的 server 都被 reap</td></tr>
+      <tr><td>12</td><td>Vault</td><td>filesystem</td><td>vault.json 在 Unix 上 chmod 600</td></tr>
+      <tr><td>13</td><td>Skill EWMA</td><td>Skill 状态</td><td>score 跨阈值 &rarr; 状态在 ≤ 1 轮内迁移</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+
+<footer>EvoClaw · 设计图 · 与 prd.md 同步 · 在 mermaid 10.9.0 下渲染</footer>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      darkMode: true,
+      background: '#1d222c',
+      primaryColor: '#1a2f4a',
+      primaryTextColor: '#e6e9ef',
+      primaryBorderColor: '#5fb3ff',
+      lineColor: '#8b94a7',
+      fontFamily: '-apple-system,"Segoe UI","PingFang SC",sans-serif'
+    },
+    flowchart: { curve: 'basis', useMaxWidth: true },
+    sequence: { useMaxWidth: true, mirrorActors: false },
+    state: { useMaxWidth: true }
+  });
+</script>
+</body>
+</html>

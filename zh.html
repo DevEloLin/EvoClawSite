@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Primary SEO -->
+<title>EvoClaw — 本地优先 · 自主进化的 Rust AI Agent Runtime | 密钥永不出本机 · ACP / MCP 标准互通 · 长会话省 70% token</title>
+<meta name="description" content="EvoClaw 是一个开源的本地优先、自主进化的 Rust AI Agent Runtime。内建密钥隔离屏障，确保 API key、密码、Token 永远不进入模型 API。支持 ACP（Claude Code / Codex / Cursor / GitHub Copilot）与 MCP（filesystem / GitHub / fetch / Postgres / Slack 等）标准协议互通。macOS / Linux / Windows 全平台。长会话 token 成本降到约三分之一。">
+<meta name="keywords" content="EvoClaw, AI Agent Runtime, 本地优先 Agent, 自主进化 Agent, Rust Agent, 开源 Agent 框架, Agent Client Protocol, ACP, Model Context Protocol, MCP, Claude Code CLI, Codex CLI, Cursor CLI, GitHub Copilot CLI, 密钥隔离, 密钥保险柜, API key 安全, prompt 脱敏, JSONL 会话日志, 技能树, EWMA 评分, 反思蒸馏, Token 经济, prompt 缓存, ephemeral cache, schema 哈希指纹, 头尾截断, summary 工作记忆, tag 周期压缩, OpenAI 兼容, Anthropic, DeepSeek, Kimi, Qwen, OpenRouter, Ollama, vLLM, llama.cpp, 本地 AI, 隐私优先 AI, 审计日志 Agent, append-only JSONL, 自托管 AI, agent CLI, REPL, agent shell, 自主代理, 终端 AI 助手, 开发者效率, devops AI, SRE AI, 国产模型, 国内可用 AI Agent">
+<meta name="author" content="EvoClaw 贡献者">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0f1115">
+<link rel="canonical" href="https://develolin.github.io/EvoClawSite/zh.html">
+<link rel="alternate" hreflang="en" href="https://develolin.github.io/EvoClawSite/">
+<link rel="alternate" hreflang="zh-CN" href="https://develolin.github.io/EvoClawSite/zh.html">
+<link rel="alternate" hreflang="x-default" href="https://develolin.github.io/EvoClawSite/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="EvoClaw — 本地优先 · 自主进化的 Rust AI Agent Runtime">
+<meta property="og:description" content="开源 Agent Runtime，所有密钥留在本机，每次任务都在学习，长会话 token 成本降到约 1/3。ACP + MCP 标准互通。">
+<meta property="og:url" content="https://develolin.github.io/EvoClawSite/zh.html">
+<meta property="og:site_name" content="EvoClaw">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="EvoClaw — 本地优先 AI Agent Runtime（Rust，MIT）">
+<meta name="twitter:description" content="自主进化的 AI Agent Runtime。密钥永不出本机。ACP + MCP 互通。开源、MIT。">
+
+<!-- JSON-LD: SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "EvoClaw",
+  "alternateName": "EvoClaw 智能代理运行时",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Linux, Windows",
+  "description": "用 Rust 写的本地优先、自主进化 AI Agent Runtime；内建密钥隔离屏障，支持 ACP 与 MCP 两条开放协议互通。",
+  "softwareVersion": "0.0.1",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "license": "https://opensource.org/licenses/MIT",
+  "programmingLanguage": "Rust",
+  "url": "https://develolin.github.io/EvoClawSite/zh.html",
+  "downloadUrl": "https://github.com/DevEloLin/evoclaw",
+  "inLanguage": "zh-CN",
+  "featureList": [
+    "本地优先 — 所有状态留在用户本机",
+    "自主进化的技能树（Draft / Candidate / Active / Degraded / Deprecated 五态机 + EWMA 评分）",
+    "密钥隔离屏障 — 命名 Vault 替换 + 模式兜底（sk-、ghp_、AKIA、JWT）",
+    "Token 经济 — schema 指纹、ephemeral cache、summary 协议、头尾截断、周期压缩（约省 70 percent）",
+    "ACP — 通过 Agent Client Protocol 把循环交给 Claude Code / Codex / Cursor / GitHub Copilot",
+    "MCP — Model Context Protocol 桥接 filesystem / GitHub / fetch / time / Brave / Postgres / Slack",
+    "OpenAI 兼容 HTTP、原生 Anthropic、GitHub Copilot OAuth Device Flow",
+    "Append-only JSONL 会话日志；evoclaw replay 任意回放",
+    "P0 至 P8 权限阶梯，渠道封顶 P4",
+    "开源 MIT，Rust 1.80+"
+  ]
+}
+</script>
+
+<!-- JSON-LD: FAQPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "zh-CN",
+  "mainEntity": [
+    {"@type":"Question","name":"EvoClaw 是什么？","acceptedAnswer":{"@type":"Answer","text":"EvoClaw 是一个开源的本地优先 AI Agent Runtime，用 Rust 写。它跑在你自己的机器上，每次任务后会反思+蒸馏成 YAML Skill 写到磁盘，密钥在 runtime 边界处被脱敏所以永远不进入模型 API；同时支持 ACP 与 MCP 两条开放协议，与上游 coding CLI 和第三方工具互通。"}},
+    {"@type":"Question","name":"EvoClaw 会把我的代码或密钥发到云端吗？","acceptedAnswer":{"@type":"Answer","text":"不会。唯一向外的网络调用是你自己配置的模型 API（也可以指本地 Ollama 或任意 OpenAI 兼容端点）。在那次调用之前，所有文本都会过 redactor：vault 命中替换为 dollar SECRET name 占位符，未注册的密钥形状（sk-*、ghp_*、AKIA*、eyJ JWT、高熵串）替换为 REDACTED kind fp 标记。"}},
+    {"@type":"Question","name":"支持哪些模型和 provider？","acceptedAnswer":{"@type":"Answer","text":"DeepSeek、Kimi、Qwen、OpenAI、OpenRouter、Anthropic、GitHub Copilot（OAuth Device Flow），加上任意 OpenAI 兼容本地端点（Ollama、vLLM、llama.cpp）。通过 ACP，agent 循环还可以委托给 Claude Code、Codex、Cursor 或 GitHub Copilot CLI 来跑。"}},
+    {"@type":"Question","name":"Token 成本是怎么省下来的？","acceptedAnswer":{"@type":"Answer","text":"叠加 5 招：schema 哈希指纹（10 轮重置）、ephemeral cache 标记、头加尾观测截断、summary 工作记忆协议、每 5 轮 tag 级周期压缩。叠加之后长任务实测花费降到约 1/3，缓存命中率稳定 ≥ 60 percent。"}},
+    {"@type":"Question","name":"数据存在哪里？","acceptedAnswer":{"@type":"Answer","text":"全部状态在 ~/.evoclaw/ 下：config.toml、logs/{task_id}.jsonl、skills/*.yaml、memory/{L0..L5}.jsonl、secrets/vault.json（chmod 600）、agents/*.toml、mcp/*.toml、cost.jsonl。除了模型 API 调用，没有任何东西出本机。"}},
+    {"@type":"Question","name":"现在能用于生产吗？","acceptedAnswer":{"@type":"Answer","text":"目前是 v0.0.x 阶段。Agent loop / 学习闭环 / Redactor / ACP / MCP 全部已落地，153+ 单元测试全绿。适合个人开发者与小团队尝试；正式生产部署请谨慎分阶段。"}}
+  ]
+}
+</script>
+
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161a22; --panel2:#1d222c; --line:#2a3140;
+    --text:#e6e9ef; --muted:#8b94a7; --accent:#5fb3ff; --good:#4ade80; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB",sans-serif;line-height:1.6}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .nav{position:sticky;top:0;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);padding:14px 32px;border-bottom:1px solid var(--line);font-size:14px;z-index:10;display:flex;justify-content:space-between;align-items:center}
+  .nav .brand{font-weight:600;letter-spacing:.5px}
+  .nav .links a{margin-left:18px;color:var(--muted)}
+  .nav .links a:hover{color:var(--accent)}
+  .hero{padding:80px 32px 64px;text-align:center;background:linear-gradient(180deg,#1a2030,#0f1115)}
+  .hero h1{font-size:38px;margin:0 0 12px;letter-spacing:.5px;line-height:1.3}
+  .hero h1 .accent{color:var(--accent)}
+  .hero .lead{color:var(--muted);font-size:17px;max-width:820px;margin:0 auto 28px}
+  .hero .cta a{display:inline-block;margin:0 8px;padding:12px 28px;border-radius:8px;font-weight:600}
+  .hero .cta .primary{background:var(--accent);color:#0f1115;border:1px solid var(--accent)}
+  .hero .cta .secondary{border:1px solid var(--line);color:var(--text);background:var(--panel)}
+  .hero .badges{margin-top:20px;font-size:12px;color:var(--muted)}
+  .hero .badges span{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin:0 4px}
+  main{max-width:1180px;margin:0 auto;padding:24px 32px 80px}
+  section{margin:40px 0}
+  section h2{font-size:24px;margin:0 0 8px;color:var(--accent)}
+  section p.lede{color:var(--muted);margin:0 0 24px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:980px){.grid3{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px}
+  .card h3{margin:0 0 8px;font-size:16px;color:var(--text)}
+  .card p{margin:0;color:var(--muted);font-size:14px}
+  pre{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow:auto;font-size:13px;color:var(--text)}
+  code.inline{background:var(--panel2);padding:1px 6px;border-radius:4px;font-size:12.5px}
+  .ascii{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;line-height:1.3;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:14px;white-space:pre;overflow:auto}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin:8px 0}
+  details summary{cursor:pointer;font-weight:600;color:var(--text)}
+  .link-card{display:block;text-decoration:none;color:inherit;transition:border-color .15s ease,transform .15s ease}
+  .link-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .link-card h3{color:var(--accent);margin:0 0 6px;font-size:18px}
+  .link-card .alt{display:inline-block;margin-top:10px;font-size:12px;color:var(--muted)}
+  .link-card .alt a{color:var(--accent)}
+  details p{color:var(--muted);margin:8px 0 0}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600;background:var(--panel2)}
+  footer{color:var(--muted);font-size:12px;padding:30px 32px 60px;text-align:center;border-top:1px solid var(--line);margin-top:60px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="brand">EvoClaw</div>
+  <div class="links">
+    <a href="#features">特性</a>
+    <a href="#diagrams">架构图</a>
+    <a href="#redaction">密钥屏障</a>
+    <a href="#interop">ACP / MCP</a>
+    <a href="#quickstart">快速上手</a>
+    <a href="#faq">常见问题</a>
+    <a href="https://github.com/DevEloLin/evoclaw" target="_blank" rel="noopener">GitHub</a>
+    <a href="index.html">English</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1><span class="accent">本地优先</span>、自主进化的 Rust AI Agent Runtime</h1>
+  <p class="lead">EvoClaw 把 agent 循环跑在你自己的笔记本上。每次任务都在学习、密钥在 runtime 边界就被脱敏不会进入模型 API、长会话 token 成本降到约 1/3。ACP + MCP 标准协议互通。MIT 开源。</p>
+  <div class="cta">
+    <a class="primary" href="https://github.com/DevEloLin/evoclaw" target="_blank" rel="noopener">在 GitHub 上 Star →</a>
+    <a class="secondary" href="#quickstart">快速上手</a>
+  </div>
+  <div class="badges">
+    <span>Rust 1.80+</span>
+    <span>macOS · Linux · Windows</span>
+    <span>153+ 测试全绿</span>
+    <span>核心约 6K LOC</span>
+    <span>零遥测</span>
+  </div>
+</header>
+
+<main>
+
+<section id="why">
+  <h2>为什么再做一个 Agent Runtime？</h2>
+  <p class="lede">现代 coding agent 能读你的代码、跑 shell、调外部 API、写文件 —— 这是相当长的一份能力清单要交给一个不归你管的东西。EvoClaw 填的是矩阵里"本地优先"那一格。</p>
+  <div class="grid3">
+    <div class="card">
+      <h3>代码留在本机</h3>
+      <p>唯一出本机的网络调用是你自己选的模型 API。其他东西全部落到 <code class="inline">~/.evoclaw/</code> 下。托管 SaaS agent 把 prompt 进它们的日志，EvoClaw 在 runtime 边界处把 prompt 先 scrub 一遍。</p>
+    </div>
+    <div class="card">
+      <h3>密钥不会进模型</h3>
+      <p>Redactor 在 ConversationRuntime 的 6 个注入点都会跑。Vault 已注册的值替换为 <code class="inline">${SECRET:NAME}</code>，未注册但形状像凭据的串替换为 <code class="inline">[REDACTED:kind:fp]</code>。两层都是幂等的。</p>
+    </div>
+    <div class="card">
+      <h3>花费可控</h3>
+      <p>5 招叠加 — schema 指纹、ephemeral cache、summary 协议、头尾截断、周期压缩 — 让长任务实测花费降到约 1/3。每招都有单元测试压住。</p>
+    </div>
+  </div>
+</section>
+
+<section id="diagrams">
+  <h2>架构图与设计图</h2>
+  <p class="lede">两个页面、四种语言。架构页把每个模块画在同一画布上；设计页覆盖每条状态机、时序图、闭环规则。点进去看。</p>
+  <div class="grid2">
+    <a class="card link-card" href="architecture-zh.html">
+      <h3>系统架构 →</h3>
+      <p>一张图看懂 · 七层泳道（CSS 布局，每层横向铺开）· 单任务 runtime 闭环 · 密钥屏障 · Token 经济 · ACP / MCP 互通 · 部署拓扑 · 存储索引。</p>
+      <span class="alt">also: <a href="architecture-en.html">English</a></span>
+    </a>
+    <a class="card link-card" href="design-zh.html">
+      <h3>设计图 →</h3>
+      <p>Task / Skill / Memory 状态机 · ER 模型 · 单任务端到端时序 · ACP 委派循环 · MCP 工具调用 · 权限阶梯 · 13 行闭环验收矩阵。</p>
+      <span class="alt">also: <a href="design-en.html">English</a></span>
+    </a>
+  </div>
+</section>
+
+<section id="features">
+  <h2>开箱即得</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>自主进化的 Skill Tree</h3>
+      <p>每次任务结束都跑一次反思回合，蒸馏出一份 YAML Skill 写到磁盘。五态机 EWMA 老化：<b>Draft → Candidate → Active → Degraded → Deprecated</b>。Active 自动喂给下次 planner。<code class="inline">evoclaw skill tree</code>。</p>
+    </div>
+    <div class="card">
+      <h3>分层记忆 L0 至 L5</h3>
+      <p>L0 scratch、L1 用户偏好、L2 环境事实（90 天 age out）、L3 任务记录、L4 模型反思、L5 冷存。**故意做的** JSONL + grep —— 向量在检索时要花 prompt token；针对类型化记忆层的子串匹配不会。</p>
+    </div>
+    <div class="card">
+      <h3>Append-only JSONL 回放</h3>
+      <p>一任务一份日志，一记录一行 JSON（Task / Turn / End）。<code class="inline">evoclaw replay</code> 重建任意会话；<code class="inline">doctor closure</code> 审计每份日志是否完整闭环。</p>
+    </div>
+    <div class="card">
+      <h3>三级预算引擎</h3>
+      <p>per-task hard stop、per-day soft warn + hard cap（4×）、per-month hard cap。<code class="inline">doctor-of tokens</code> 看 7 天 / 30 天花费与缓存命中率。</p>
+    </div>
+    <div class="card">
+      <h3>P0 至 P8 权限阶梯</h3>
+      <p>由 <code class="inline">evo-policy::Permission</code> 全序约束。默认上限 P1（workspace 写）。渠道发送方无视 config 硬封顶 P4。</p>
+    </div>
+    <div class="card">
+      <h3>双 binary，单 CLI</h3>
+      <p><code class="inline">evoclaw</code>（长格式）与 <code class="inline">evo</code>（3 字母短别名）共享同一份 lib。不带子命令直接进 REPL —— 跟主流 coding CLI 一致的体验。</p>
+    </div>
+  </div>
+</section>
+
+<section id="redaction">
+  <h2>密钥隔离屏障</h2>
+  <p class="lede">两层互补防线。<b>用户输入的任意 key / 密码 / OAuth token 永不通过模型 API 离开本机。</b></p>
+  <pre class="ascii">
+┌─────────────────────────────────────────────────────────────────┐
+│  user input · tool args · tool output · assistant text          │
+└──────────┬──────────────────────────────────────────────────────┘
+           ▼
+   ┌───────────────────────┐  vault 命中?  ┌─────────────────────┐
+   │  Vault 命名替换         │ ───是───→    │  ${SECRET:NAME}      │
+   │  vault.json chmod 600 │              └─────────────────────┘
+   └─────────┬─────────────┘
+             ▼ 否
+   ┌───────────────────────┐  模式命中?    ┌─────────────────────┐
+   │  模式兜底              │ ───是───→    │ [REDACTED:kind:fp]   │
+   │  sk-* · ghp_* · eyJ*  │              │ 同密钥同指纹便于对照  │
+   │  AKIA* · 高熵串        │              └─────────────────────┘
+   └─────────┬─────────────┘
+             ▼ 不识别
+       （普通文本，原样通过）
+             ▼
+   ┌────────────────────────────────────────────────────────────┐
+   │  模型 API 调用 · JSONL 会话日志 · 记忆层                    │
+   └────────────────────────────────────────────────────────────┘
+  </pre>
+</section>
+
+<section id="interop">
+  <h2>标准协议互通</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>ACP — 把循环交出去</h3>
+      <p>在 <code class="inline">~/.evoclaw/config.toml</code> 设 <code class="inline">provider = "acp:claude"</code>（或 codex / cursor / copilot）。EvoClaw 把上游 CLI spawn 成子进程，通过 ACP（JSON-RPC over stdio）转发 prompt。认证留在上游 CLI 自己手里。</p>
+    </div>
+    <div class="card">
+      <h3>MCP — 自带工具进来</h3>
+      <p>跑任意标准 Anthropic Model Context Protocol 服务器 —— filesystem / GitHub / fetch / time / Brave / Postgres / Slack 或自写。工具在 ToolRegistry 中以 <code class="inline">mcp__server__tool</code> 命名。鉴权 env 在 <code class="inline">mcp add</code> 时落盘，模型完全看不见。</p>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart">
+  <h2>快速上手</h2>
+  <p class="lede">编译 → 敲 <code class="inline">evoclaw</code> → 跟向导走。无需包管理器。零遥测。无需注册账号。</p>
+  <pre>git clone https://github.com/DevEloLin/evoclaw &amp;&amp; cd evoclaw
+cargo build --workspace --release
+./target/release/evoclaw                 # 首次启动会跑交互式向导
+
+# 注册密钥 —— 原值永不出本机
+evoclaw secret add github_pat ghp_yourActualValueHere
+
+# 跑任务
+evoclaw run "排查为什么我连生产机的 SSH 偶尔卡住"
+
+# 复盘
+evoclaw replay
+</pre>
+  <p style="color:var(--muted);font-size:14px">完整指南：<a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/getting-started.md">中文版</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/getting-started.md">English</a></p>
+</section>
+
+<section id="cost-comparison">
+  <h2>托管 SaaS 与 EvoClaw 一表对照</h2>
+  <table>
+    <thead><tr><th>问题</th><th>托管 SaaS Agent</th><th>EvoClaw</th></tr></thead>
+    <tbody>
+      <tr><td>我的代码去哪了？</td><td>每次 prompt 进它们后端</td><td>仅你选的模型 API；其他全部留在本机</td></tr>
+      <tr><td>我的密钥去哪了？</td><td>贴进对话框就进它们日志</td><td>vault.json chmod 600；模型只看到占位符</td></tr>
+      <tr><td>我的日志去哪了？</td><td>它们的服务器，被索引</td><td><code class="inline">~/.evoclaw/logs/</code>；你想删就删</td></tr>
+      <tr><td>能复盘上周二的跑吗？</td><td>看厂商保留没</td><td><code class="inline">evoclaw replay /path/to/log.jsonl</code></td></tr>
+      <tr><td>能离线吗？</td><td>不能</td><td>能 —— base_url 指 Ollama / vLLM / llama.cpp</td></tr>
+      <tr><td>能用在涉密内容上吗？</td><td>大概率不能</td><td>能 —— 所有字节在你机器上</td></tr>
+      <tr><td>厂商 pivot 了怎么办？</td><td>重头来过</td><td>skill / memory / config 照常工作</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="faq">
+  <h2>常见问题</h2>
+  <details><summary>EvoClaw 是什么，一句话？</summary><p>用 Rust 写的本地优先 agent runtime，每次任务都在学，工作过程在 append-only 日志里可以证明，你输入的密钥永远不会到模型。</p></details>
+  <details><summary>能离线用吗？</summary><p>能。<code class="inline">model.base_url</code> 指 <code class="inline">http://localhost:11434/v1</code>（Ollama）或任意本地 vLLM / llama.cpp 服务，跳过 API key 步骤。redactor 与 skill tree 仍然工作。</p></details>
+  <details><summary>重新 clone 仓库后我的 skill 还在吗？</summary><p>在。状态在 <code class="inline">~/.evoclaw/</code>，不在仓库里。EvoClaw 整体 wipe 重建多少次都行，skill / memory / vault 都不会丢。</p></details>
+  <details><summary>能把 session 日志分享给同事吗？</summary><p>能。每个文本字段在写入前已经 scrub 过，JSONL 默认安全可分享。</p></details>
+  <details><summary>模型把我的密钥从历史里"念"回到日志里怎么办？</summary><p>去模型路上 scrub 一次，回程 scrub 一次。即使模型出于某种原因把已注册的值回显出来，那段 assistant text 在写 JSONL 之前还会被 scrub 一次。</p></details>
+  <details><summary>为什么不用向量数据库？</summary><p>向量检索的成本是"对 query 做 embedding，把 top-k 块送回 context"。能跑，但既不便宜也不易审计。在本地工作负载下，针对类型化记忆层做纯文本 grep，召回率相当但 prompt 成本只有零头。如果你的工作负载不适合，挂一个带向量后端的 MCP server 即可。</p></details>
+  <details><summary>为什么用 Rust？</summary><p>单一静态 binary，无运行时，无 GC 暂停；类型系统能在编译期挡掉一类对长程运行的 agent runtime 真正有杀伤力的 bug。这些都拿到，还不必交 C++ 税。</p></details>
+  <details><summary>怎么切换模型 provider？</summary><p>跑 <code class="inline">evoclaw login</code> 重选，或者直接编辑 <code class="inline">~/.evoclaw/config.toml</code>。EvoClaw 支持 DeepSeek、Kimi、Qwen、OpenAI、OpenRouter、Anthropic、GitHub Copilot、Ollama 以及任意 OpenAI 兼容端点。</p></details>
+</section>
+
+<section id="links">
+  <h2>资源</h2>
+  <ul>
+    <li><a href="https://github.com/DevEloLin/evoclaw">GitHub 仓库 — 代码、测试、Release</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/tree/main/docs/zh">全部中文文档</a> · <a href="https://github.com/DevEloLin/evoclaw/tree/main/docs">English docs</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/installation.md">安装</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/getting-started.md">快速上手</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/usage.md">使用参考</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/architecture.md">架构总览</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/contributing.md">贡献指南</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/agents.md">外部 ACP 代理</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/mcp.md">MCP 服务器</a></li>
+    <li><a href="architecture-zh.html">架构图（中文）</a> · <a href="architecture-en.html">English</a> · <a href="design-zh.html">设计图（中文）</a> · <a href="design-en.html">English</a></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  EvoClaw · MIT 开源 · Rust 1.80+ · <a href="https://github.com/DevEloLin/evoclaw">github.com/DevEloLin/evoclaw</a><br>
+  <span style="color:#5b6172">零遥测 · 无分析 SDK · 你的机器、你的数据。</span>
+</footer>
+
+</body>
+</html>

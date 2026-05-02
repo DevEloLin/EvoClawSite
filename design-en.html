@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EvoClaw — Design Diagrams</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="EvoClaw design: Task / Skill / Memory FSMs, ER model, end-to-end sequences, redaction barrier, ACP / MCP interop, closure matrix.">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161a22; --panel2:#1d222c; --line:#2a3140;
+    --text:#e6e9ef; --muted:#8b94a7; --accent:#5fb3ff; --good:#4ade80; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",sans-serif;line-height:1.6}
+  header{padding:32px 48px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#1a2030,#0f1115)}
+  header h1{margin:0;font-size:28px;letter-spacing:.5px}
+  header .sub{color:var(--muted);margin-top:6px;font-size:14px}
+  header .lang{margin-top:8px;font-size:12px}
+  header .lang a{color:var(--accent);text-decoration:none;margin-right:14px}
+  main{max-width:1380px;margin:0 auto;padding:24px 32px 80px}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px 28px;margin:24px 0}
+  section h2{margin:0 0 8px;font-size:20px;color:var(--accent)}
+  section h3{color:var(--muted);font-size:14px;margin:16px 0 8px}
+  section p.lede{color:var(--muted);margin:0 0 16px;font-size:14px}
+  .mermaid{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:16px;overflow:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600;background:var(--panel2)}
+  code{background:var(--panel2);padding:1px 6px;border-radius:4px;font-size:12.5px}
+  .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-right:6px}
+  .pill.good{color:var(--good);border-color:#1f3a2a}
+  .pill.warn{color:var(--warn);border-color:#3a2f17}
+  .pill.bad{color:var(--bad);border-color:#3a1d1d}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:980px){.grid2{grid-template-columns:1fr}}
+  nav.toc{position:sticky;top:0;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);padding:10px 32px;border-bottom:1px solid var(--line);font-size:13px;z-index:10}
+  nav.toc a{color:var(--muted);text-decoration:none;margin-right:14px}
+  nav.toc a:hover{color:var(--accent)}
+  footer{color:var(--muted);font-size:12px;padding:24px 48px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>EvoClaw — Design Diagrams</h1>
+  <div class="sub">Finite-state machines · ER model · end-to-end sequences · closure matrix</div>
+  <div class="lang">
+    <a href="design-en.html">English</a> · <a href="design-zh.html">中文</a> · <a href="architecture-en.html">← Architecture</a>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#task-fsm">Task FSM</a>
+  <a href="#skill-fsm">Skill FSM</a>
+  <a href="#memory-fsm">Memory FSM</a>
+  <a href="#er">ER model</a>
+  <a href="#seq-task">Task sequence</a>
+  <a href="#seq-acp">ACP sequence</a>
+  <a href="#seq-mcp">MCP sequence</a>
+  <a href="#perm">Permission ladder</a>
+  <a href="#closure">Closure matrix</a>
+</nav>
+
+<main>
+
+<section id="task-fsm">
+  <h2>1. Task lifecycle FSM</h2>
+  <p class="lede">Every task must pass through REFLECTING. Direct OBSERVING to COMPLETED is forbidden. The terminal exit is always ARCHIVED.</p>
+  <div class="mermaid">
+stateDiagram-v2
+  [*] --> RECEIVED
+  RECEIVED --> PLANNING: parsed
+  RECEIVED --> FAILED: parse failed or denied or budget out
+  PLANNING --> TOOL_EXECUTING: plan ready
+  PLANNING --> AWAITING_USER: missing param
+  TOOL_EXECUTING --> OBSERVING: tool returned
+  OBSERVING --> TOOL_EXECUTING: more steps
+  OBSERVING --> AWAITING_USER: high risk or ambiguous
+  OBSERVING --> REFLECTING: plan complete
+  AWAITING_USER --> TOOL_EXECUTING: user approved
+  AWAITING_USER --> FAILED: rejected or timeout 10min
+  REFLECTING --> DISTILLING: success true
+  REFLECTING --> FAILED: success false
+  DISTILLING --> COMPLETED: write skill plus memory
+  COMPLETED --> ARCHIVED: T plus 30 days
+  FAILED --> ARCHIVED: T plus 30 days
+  ARCHIVED --> [*]
+  </div>
+  <p class="lede" style="margin-top:8px">
+    <span class="pill">RECEIVED + PLANNING &le; 60s</span>
+    <span class="pill">AWAITING_USER timeout 10min</span>
+    <span class="pill warn">REFLECTING is mandatory</span>
+    <span class="pill bad">no ARCHIVED bypass</span>
+  </p>
+</section>
+
+<section id="skill-fsm">
+  <h2>2. Skill lifecycle FSM</h2>
+  <p class="lede">Score is updated by EWMA. Below 0.3 the skill auto-deprecates. User correction has the strongest negative weight.</p>
+  <div class="grid2">
+    <div>
+      <h3>2.1 State transitions</h3>
+      <div class="mermaid">
+stateDiagram-v2
+  [*] --> DRAFT
+  DRAFT --> CANDIDATE: sandbox ok
+  DRAFT --> DEPRECATED: sandbox fails three times
+  CANDIDATE --> ACTIVE: real success three plus and score 0.7 plus
+  CANDIDATE --> DEGRADED: score in 0.3 to 0.7
+  ACTIVE --> DEGRADED: score drops to 0.3 to 0.7
+  DEGRADED --> ACTIVE: score 0.7 plus and last 5 success rate 80 plus
+  DEGRADED --> DEPRECATED: score under 0.3 or fails five times
+  DEPRECATED --> ARCHIVED: T plus 30 days or merged
+  ACTIVE --> ARCHIVED: merged
+  CANDIDATE --> ARCHIVED: merged
+  ARCHIVED --> [*]
+      </div>
+    </div>
+    <div>
+      <h3>2.2 Score updates</h3>
+      <table>
+        <thead><tr><th>Event</th><th>Formula</th><th>Weight</th></tr></thead>
+        <tbody>
+          <tr><td>success</td><td><code>0.9 * s + 0.1 * 1.0</code></td><td>normal</td></tr>
+          <tr><td>failure</td><td><code>0.9 * s + 0.1 * 0.0</code></td><td>normal</td></tr>
+          <tr><td>sandbox pass</td><td><code>max(s, 0.6)</code></td><td>promote</td></tr>
+          <tr><td>sandbox fail</td><td><code>s * 0.5</code></td><td>demote</td></tr>
+          <tr><td>thumbs up</td><td><code>min(1, s + 0.1)</code></td><td><span class="pill good">strong</span></td></tr>
+          <tr><td>thumbs down</td><td><code>s * 0.7</code></td><td><span class="pill warn">strong</span></td></tr>
+          <tr><td>user correction</td><td><code>s * 0.5</code> + revise</td><td><span class="pill bad">strongest</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="memory-fsm">
+  <h2>3. Memory layer FSM and GC</h2>
+  <p class="lede">L0 / L1 are permanent. L2 / L3 age out. GC only collects low-confidence + long-unread items.</p>
+  <div class="mermaid">
+stateDiagram-v2
+  [*] --> L3_RECENT: write at task end
+  L3_RECENT --> L4_SKILL: distilled into skill
+  L3_RECENT --> L5_ARCHIVE: 90 days unread no skill
+  L3_RECENT --> GC: confidence under 0.2 and 60 days unread
+  L4_SKILL --> L5_ARCHIVE: skill archived
+  L4_SKILL --> GC: confidence under 0.2 and 60 days unread
+  L5_ARCHIVE --> GC: 365 days and confidence under 0.2
+  L0_PERM: L0 core rules permanent
+  L1_PREF: L1 user prefs delete only on user revoke
+  L2_ENV: L2 env facts 90 days or doctor refresh
+  L2_ENV --> L1_PREF: user promotes to pref
+  GC --> [*]
+  </div>
+  <p class="lede" style="margin-top:8px">
+    <span class="pill">L3 default 30 days</span>
+    <span class="pill">L5 default 365 days</span>
+    <span class="pill warn">single record &le; 64 KB</span>
+    <span class="pill bad">redaction is mandatory before write</span>
+  </p>
+</section>
+
+<section id="er">
+  <h2>4. ER model</h2>
+  <p class="lede">Three primary entities: Task, Skill, Memory. Auth and Channel join from the side. Time fields are RFC3339 (e.g. <code>2026-05-02T17:52:00Z</code>).</p>
+  <div class="mermaid">
+erDiagram
+  TASK ||--o{ TOOL_CALL : invokes
+  TASK ||--|| REFLECTION : produces
+  TASK ||--o{ AUDIT_EVENT : emits
+  TASK ||--o{ COST_EVENT : accrues
+  REFLECTION ||--o{ SKILL : creates_or_updates
+  REFLECTION ||--|| MEMORY_L3 : writes
+  SKILL ||--o{ SKILL_VERSION : versions
+  SKILL ||--o{ FAILURE_PATTERN : records
+  SKILL ||--o{ MEMORY_L4 : linked_to
+  MEMORY_L3 ||--o| MEMORY_L4 : distill_into
+  MEMORY_L3 ||--o| MEMORY_L5 : archive
+  MEMORY_L4 ||--o| MEMORY_L5 : archive_when_skill_archived
+  AUTH_RECORD ||--o{ TOOL_CALL : authorizes
+  CHANNEL_SENDER ||--o{ TASK : originates
+  POLICY_RULE ||--o{ AUDIT_EVENT : evaluates
+  VAULT_ENTRY ||--o{ AUDIT_EVENT : substituted_in
+
+  TASK {
+    string task_id PK
+    string user_input_safe
+    string source
+    string selected_model
+    string state
+    string started_at
+    string finished_at
+  }
+  SKILL {
+    string id PK
+    string kind
+    int    version
+    float  score
+    string state
+    string created_from_task FK
+  }
+  MEMORY_L3 {
+    string id PK
+    string content
+    float  confidence
+    string ts
+    string source
+  }
+  VAULT_ENTRY {
+    string name PK
+    string value_redacted
+    string kind
+    string fingerprint
+    string created_at
+  }
+  </div>
+</section>
+
+<section id="seq-task">
+  <h2>5. End-to-end sequence (single task)</h2>
+  <p class="lede">From user input to ARCHIVED. Notice the redactor scrubs at three boundary points.</p>
+  <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant U as User
+  participant CLI as evoclaw CLI
+  participant RED as Redactor
+  participant RT as ConversationRuntime
+  participant PROV as Provider
+  participant TOOL as Tool Registry
+  participant SK as Skill Tree
+  participant MEM as Memory
+  participant LOG as JSONL Log
+
+  U->>CLI: type a task
+  CLI->>RED: scrub user_input
+  RED-->>CLI: user_input_safe
+  CLI->>RT: run(user_input_safe)
+  RT->>LOG: append Task record
+
+  loop until no more tool calls
+    RT->>PROV: stream(messages, tools)
+    PROV-->>RT: assistant_text + tool_calls
+    RT->>RED: scrub assistant_text + args
+    RED-->>RT: scrubbed
+    alt tool calls present
+      RT->>TOOL: invoke(call)
+      TOOL-->>RT: result
+      RT->>RED: scrub result
+      RED-->>RT: result_safe
+      RT->>LOG: append Turn record
+    end
+  end
+
+  RT->>PROV: reflection round
+  PROV-->>RT: ReflectionRecord
+  RT->>SK: distill + upsert skill
+  RT->>MEM: write L3 record
+  RT->>LOG: append End record
+  RT-->>CLI: final_text
+  CLI-->>U: output
+  </div>
+</section>
+
+<section id="seq-acp">
+  <h2>6. ACP delegated loop</h2>
+  <p class="lede">When provider is <code>acp:&lt;id&gt;</code>, EvoClaw spawns the upstream CLI as a subprocess and routes prompts through ACP.</p>
+  <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant U as User
+  participant RT as ConversationRuntime
+  participant AP as AcpProvider
+  participant CHILD as External CLI
+  participant LOG as JSONL Log
+
+  U->>RT: run(user_input_safe)
+  RT->>AP: stream(req)
+  AP->>CHILD: spawn(claude --acp)
+  AP->>CHILD: initialize handshake
+  CHILD-->>AP: serverInfo
+  AP->>CHILD: session/new
+  CHILD-->>AP: session_id
+  AP->>CHILD: session/prompt(text)
+  CHILD-->>AP: final text
+  AP-->>RT: stream events
+  RT->>LOG: append Turn + End
+  Note over CHILD: kill_on_drop true reaps child cleanly
+  </div>
+</section>
+
+<section id="seq-mcp">
+  <h2>7. MCP tool call</h2>
+  <p class="lede">An MCP tool surfaces in the registry as <code>mcp__&lt;server&gt;__&lt;tool&gt;</code>. The model never sees the env auth.</p>
+  <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant RT as ConversationRuntime
+  participant TR as ToolRegistry
+  participant W as McpToolWrapper
+  participant SRV as MCP Server
+  participant LOG as JSONL Log
+
+  Note over TR: install_all spawns each server at startup
+  TR->>W: register(mcp_github_list_issues)
+  RT->>TR: invoke(mcp_github_list_issues, args)
+  TR->>W: run(ctx, args)
+  W->>SRV: tools call name args
+  SRV-->>W: ToolCallResult content isError
+  W-->>TR: rendered text
+  TR-->>RT: scrubbed result
+  RT->>LOG: append Turn
+  </div>
+</section>
+
+<section id="perm">
+  <h2>8. Permission ladder</h2>
+  <p class="lede">Permission is a totally ordered ladder P0 ≤ P1 ≤ … ≤ P8. The default ceiling is P1; channels are hard-capped at P4. Tool descriptions are ≤ 80 chars.</p>
+  <div class="mermaid">
+flowchart LR
+  classDef p0 fill:#0f3a2a,stroke:#34d399,color:#fff
+  classDef p1 fill:#0f3a44,stroke:#22d3ee,color:#fff
+  classDef p2 fill:#1a2f4a,stroke:#5fb3ff,color:#fff
+  classDef p3 fill:#2a1f4a,stroke:#a78bfa,color:#fff
+  classDef p4 fill:#3a2f0a,stroke:#facc15,color:#fff
+  classDef p5 fill:#3a210a,stroke:#fb923c,color:#fff
+  classDef p6 fill:#3a1414,stroke:#f87171,color:#fff
+  classDef p7 fill:#3a1424,stroke:#ec4899,color:#fff
+  classDef p8 fill:#1a0014,stroke:#ec4899,color:#fff
+
+  P0[P0 read only read_file list_dir ask_user]:::p0
+  P1[P1 workspace write write_file patch_file]:::p1
+  P2[P2 local safe shell run_shell]:::p2
+  P3[P3 network web_fetch and MCP]:::p3
+  P4[P4 channel cap browser style ops]:::p4
+  P5[P5 user dir write]:::p5
+  P6[P6 system modify]:::p6
+  P7[P7 credential ops]:::p7
+  P8[P8 production ops]:::p8
+  P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> P8
+  </div>
+</section>
+
+<section id="closure">
+  <h2>9. Closure matrix (auditor's checklist)</h2>
+  <p class="lede"><code>evoclaw doctor closure</code> walks <code>~/.evoclaw/logs/*.jsonl</code> and checks each row. A run is closed iff every row passes for every session.</p>
+  <table>
+    <thead><tr><th>#</th><th>Producer</th><th>Consumer</th><th>Invariant</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Runtime</td><td>JSONL log</td><td>each task has exactly one Task record at the head</td></tr>
+      <tr><td>2</td><td>Runtime</td><td>JSONL log</td><td>each task has &ge; 1 Turn record</td></tr>
+      <tr><td>3</td><td>Redactor</td><td>Task / Turn / End</td><td>no field contains a registered vault value or known-secret pattern</td></tr>
+      <tr><td>4</td><td>Runtime</td><td>JSONL log</td><td>each task has exactly one End record</td></tr>
+      <tr><td>5</td><td>Runtime</td><td>End record</td><td>state is COMPLETED or FAILED, never empty</td></tr>
+      <tr><td>6</td><td>Reflection</td><td>Memory L3</td><td>completed task &rarr; one L3 write</td></tr>
+      <tr><td>7</td><td>Distillation</td><td>Skill YAML</td><td>completed task &rarr; zero or one DRAFT skill upsert</td></tr>
+      <tr><td>8</td><td>CostEngine</td><td>cost.jsonl</td><td>each Turn record &rarr; one CostEvent (best-effort)</td></tr>
+      <tr><td>9</td><td>Provider</td><td>Audit Bus</td><td>budget exceeded &rarr; HardStop event recorded</td></tr>
+      <tr><td>10</td><td>ACP child</td><td>OS</td><td>kill_on_drop reaps the subprocess; no zombie left after run</td></tr>
+      <tr><td>11</td><td>MCP child</td><td>OS</td><td>same as #10 — every spawned server reaped</td></tr>
+      <tr><td>12</td><td>Vault</td><td>filesystem</td><td>vault.json is chmod 600 on Unix</td></tr>
+      <tr><td>13</td><td>Skill EWMA</td><td>Skill state</td><td>score crossing thresholds triggers a state move within ≤1 turn</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+
+<footer>EvoClaw · Design · synced with prd.md · diagrams render under mermaid 10.9.0</footer>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      darkMode: true,
+      background: '#1d222c',
+      primaryColor: '#1a2f4a',
+      primaryTextColor: '#e6e9ef',
+      primaryBorderColor: '#5fb3ff',
+      lineColor: '#8b94a7',
+      fontFamily: '-apple-system,"Segoe UI",sans-serif'
+    },
+    flowchart: { curve: 'basis', useMaxWidth: true },
+    sequence: { useMaxWidth: true, mirrorActors: false },
+    state: { useMaxWidth: true }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# EvoClaw — public site
+# Local-first self-evolving AI agent runtime in Rust
+# https://github.com/DevEloLin/evoclaw
+
+User-agent: *
+Allow: /
+
+# Search-engine sitemap
+Sitemap: https://develolin.github.io/EvoClawSite/sitemap.xml
