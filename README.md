@@ -26,8 +26,7 @@ python3 -m http.server -d . 8080
 
 ## Publish
 
-GitHub Pages serves this directory. Configure in repo Settings → Pages → Source: GitHub Actions; the workflow at
-<https://github.com/DevEloLin/evoclaw/blob/main/.github/workflows/pages.yml> handles the upload + deploy.
+GitHub Pages serves this repo's root. Configure once in repo Settings → Pages → Build and deployment → Source: GitHub Actions; the workflow at [`.github/workflows/pages.yml`](./.github/workflows/pages.yml) does the upload + deploy on every push to `main`.
 
 ## License
 

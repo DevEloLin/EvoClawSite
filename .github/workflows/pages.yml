@@ -1,23 +1,22 @@
-# Deploy the static EvoClawSite (site/) to GitHub Pages.
+# Deploy EvoClawSite to GitHub Pages.
 #
-# Source: site/ directory (index.html, zh.html, sitemap.xml, robots.txt, 404.html, .nojekyll)
-# Trigger: push to main, or manual workflow_dispatch
-# Pages source: GitHub Actions
+# Source: this repository's root (index.html, zh.html, architecture-*.html,
+#         design-*.html, architecture.html, design.html, 404.html, sitemap.xml,
+#         robots.txt, .nojekyll, version, README.md).
+# Trigger: every push to main, or manual workflow_dispatch.
+# Pages source: GitHub Actions.
 #
-# Set up once in the repo:
-#   Settings -> Pages -> Source: GitHub Actions
+# One-time setup in the repo:
+#   Settings -> Pages -> Build and deployment -> Source: GitHub Actions
 #
-# After this workflow runs successfully the site is served at
-#   https://<owner>.github.io/<repo>/
+# After this workflow succeeds the site is served at
+#   https://develolin.github.io/EvoClawSite/
 
 name: pages
 
 on:
   push:
     branches: [main]
-    paths:
-      - "site/**"
-      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -39,10 +38,12 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload site/ as Pages artifact
+      - name: Upload repo root as Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          # Upload the whole repository working tree. The site lives at the
+          # repo root (no nested site/ subfolder in the EvoClawSite repo).
+          path: .
 
   deploy:
     needs: build
