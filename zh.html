@@ -10,7 +10,7 @@
 <meta name="keywords" content="EvoClaw, AI Agent Runtime, 本地优先 Agent, 自主进化 Agent, Rust Agent, 开源 Agent 框架, Agent Client Protocol, ACP, Model Context Protocol, MCP, Claude Code CLI, Codex CLI, Cursor CLI, GitHub Copilot CLI, 密钥隔离, 密钥保险柜, API key 安全, prompt 脱敏, JSONL 会话日志, 技能树, EWMA 评分, 反思蒸馏, Token 经济, prompt 缓存, ephemeral cache, schema 哈希指纹, 头尾截断, summary 工作记忆, tag 周期压缩, OpenAI 兼容, Anthropic, DeepSeek, Kimi, Qwen, OpenRouter, Ollama, vLLM, llama.cpp, 本地 AI, 隐私优先 AI, 审计日志 Agent, append-only JSONL, 自托管 AI, agent CLI, REPL, agent shell, 自主代理, 终端 AI 助手, 开发者效率, devops AI, SRE AI, 国产模型, 国内可用 AI Agent">
 <meta name="author" content="EvoClaw 贡献者">
 <meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#0f1115">
+<meta name="theme-color" content="#070a13">
 
 <!-- Favicons -->
 <link rel="icon"             type="image/png" sizes="32x32"  href="image/favicon-32.png">
@@ -92,260 +92,809 @@
 
 <style>
   :root{
-    --bg:#0f1115; --panel:#161a22; --panel2:#1d222c; --line:#2a3140;
-    --text:#e6e9ef; --muted:#8b94a7; --accent:#5fb3ff; --good:#4ade80; --warn:#fbbf24; --bad:#f87171;
+    --bg:#070a13;
+    --bg-alt:#0a0e1a;
+    --bg-soft:#0e131f;
+    --surface:#10151f;
+    --surface-2:#171c28;
+    --line:#1f2638;
+    --line-soft:#171d2a;
+    --line-strong:#2c3448;
+    --text:#e8edf6;
+    --text-2:#c8d0dd;
+    --muted:#8a93a8;
+    --muted-2:#5d6577;
+    --accent:#5b9eff;
+    --accent-2:#14d4b1;
+    --accent-soft:rgba(91,158,255,.10);
+    --accent-soft-2:rgba(91,158,255,.22);
+    --good:#22c55e;
+    --bad:#f87171;
+    --warn:#fbbf24;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.5);
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 36px -12px rgba(0,0,0,.55);
+    --shadow-lg:0 2px 4px rgba(0,0,0,.5),0 26px 64px -16px rgba(91,158,255,.16);
+    --shadow-glow:0 0 0 1px var(--accent-soft-2),0 14px 36px -10px rgba(91,158,255,.32);
+    --radius:14px;
+    --radius-sm:10px;
+    --radius-lg:18px;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB",sans-serif;line-height:1.6}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.7;-webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(1200px 600px at 50% -240px, rgba(91,158,255,.10), transparent 70%),
+      radial-gradient(900px 500px at 100% 0%, rgba(20,212,177,.06), transparent 70%),
+      linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 56px 56px, 56px 56px;
+    background-attachment: fixed}
+  ::selection{background:var(--accent);color:#06080f}
   a{color:var(--accent);text-decoration:none}
-  a:hover{text-decoration:underline}
-  .nav{position:sticky;top:0;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);padding:14px 32px;border-bottom:1px solid var(--line);font-size:14px;z-index:10;display:flex;justify-content:space-between;align-items:center}
-  .nav .brand{font-weight:600;letter-spacing:.5px}
-  .nav .links a{margin-left:18px;color:var(--muted)}
-  .nav .links a:hover{color:var(--accent)}
-  .hero{padding:80px 32px 64px;text-align:center;background:linear-gradient(180deg,#1a2030,#0f1115)}
-  .hero .logo{display:block;width:200px;max-width:50vw;margin:0 auto 20px;filter:drop-shadow(0 8px 24px rgba(95,179,255,.18))}
-  .hero h1{font-size:38px;margin:0 0 12px;letter-spacing:.5px;line-height:1.3}
-  .hero h1 .accent{color:var(--accent)}
-  .hero .lead{color:var(--muted);font-size:17px;max-width:820px;margin:0 auto 28px}
-  .hero .cta a{display:inline-block;margin:0 8px;padding:12px 28px;border-radius:8px;font-weight:600}
-  .hero .cta .primary{background:var(--accent);color:#0f1115;border:1px solid var(--accent)}
-  .hero .cta .secondary{border:1px solid var(--line);color:var(--text);background:var(--panel)}
-  .hero .badges{margin-top:20px;font-size:12px;color:var(--muted)}
-  .hero .badges span{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin:0 4px}
-  main{max-width:1180px;margin:0 auto;padding:24px 32px 80px}
-  section{margin:40px 0}
-  section h2{font-size:24px;margin:0 0 8px;color:var(--accent)}
-  section p.lede{color:var(--muted);margin:0 0 24px}
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  @media(max-width:980px){.grid3{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px}
-  .card h3{margin:0 0 8px;font-size:16px;color:var(--text)}
-  .card p{margin:0;color:var(--muted);font-size:14px}
-  pre{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow:auto;font-size:13px;color:var(--text)}
-  code.inline{background:var(--panel2);padding:1px 6px;border-radius:4px;font-size:12.5px}
-  .ascii{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;line-height:1.3;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:14px;white-space:pre;overflow:auto}
-  details{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin:8px 0}
-  details summary{cursor:pointer;font-weight:600;color:var(--text)}
-  .link-card{display:block;text-decoration:none;color:inherit;transition:border-color .15s ease,transform .15s ease}
-  .link-card:hover{border-color:var(--accent);transform:translateY(-2px)}
-  .link-card h3{color:var(--accent);margin:0 0 6px;font-size:18px}
-  .link-card .alt{display:inline-block;margin-top:10px;font-size:12px;color:var(--muted)}
-  .link-card .alt a{color:var(--accent)}
-  details p{color:var(--muted);margin:8px 0 0}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
-  th{color:var(--muted);font-weight:600;background:var(--panel2)}
-  footer{color:var(--muted);font-size:12px;padding:30px 32px 60px;text-align:center;border-top:1px solid var(--line);margin-top:60px}
+  a:hover{color:#9bc4ff;text-decoration:underline}
+
+  /* Top nav */
+  .nav{position:sticky;top:0;z-index:50;
+       background:rgba(7,10,19,.72);backdrop-filter:blur(14px) saturate(160%);
+       border-bottom:1px solid var(--line-soft);
+       padding:14px clamp(20px,5vw,40px);
+       display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:14px}
+  .nav .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.1px;color:var(--text)}
+  .nav .brand img{width:28px;height:28px;border-radius:8px}
+  .nav .center{display:flex;align-items:center;gap:26px}
+  .nav .center a{color:var(--muted);font-weight:500;transition:color .15s}
+  .nav .center a:hover{color:var(--text);text-decoration:none}
+  .nav .right{display:flex;align-items:center;gap:10px}
+  .nav .lang{padding:6px 12px;color:var(--muted);border-radius:999px;font-weight:500}
+  .nav .lang:hover{background:var(--surface);text-decoration:none;color:var(--text)}
+  .nav .gh{display:inline-flex;align-items:center;gap:7px;
+       padding:8px 16px;background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#06080f;border-radius:999px;
+       font-weight:700;letter-spacing:-.1px;transition:all .15s;
+       box-shadow:0 6px 18px -6px rgba(91,158,255,.5)}
+  .nav .gh:hover{transform:translateY(-1px);text-decoration:none;
+       box-shadow:0 10px 24px -6px rgba(91,158,255,.6)}
+  .nav-toggle{display:none;background:transparent;border:1px solid var(--line);border-radius:8px;
+       width:40px;height:36px;font-size:18px;cursor:pointer;color:var(--text)}
+  @media(max-width:920px){
+    .nav .center{display:none}
+    .nav .center.open{display:flex;position:absolute;left:14px;right:14px;top:64px;
+         flex-direction:column;align-items:flex-start;gap:14px;
+         background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+         padding:18px;box-shadow:var(--shadow)}
+    .nav-toggle{display:inline-flex;align-items:center;justify-content:center}
+  }
+
+  /* Hero */
+  .hero{position:relative;text-align:center;padding:96px clamp(20px,5vw,40px) 72px;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:-30% 0 auto 0;height:780px;
+       background:
+         radial-gradient(680px 380px at 50% 0%, rgba(91,158,255,.22), transparent 60%),
+         radial-gradient(560px 320px at 78% 18%, rgba(20,212,177,.14), transparent 60%),
+         radial-gradient(560px 320px at 22% 22%, rgba(157,123,255,.10), transparent 60%);
+       pointer-events:none;z-index:0}
+  .hero > *{position:relative;z-index:1}
+  .hero .eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;
+       padding:6px 14px;background:rgba(16,21,31,.7);border:1px solid var(--line);border-radius:999px;
+       color:var(--muted);font-size:12.5px;font-weight:500;
+       backdrop-filter:blur(8px);box-shadow:var(--shadow-sm)}
+  .hero .eyebrow b{color:var(--text);font-weight:700}
+  .hero .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--good);
+       box-shadow:0 0 0 4px rgba(34,197,94,.18)}
+  .hero .logo{display:block;width:148px;max-width:38vw;margin:0 auto 28px;
+       filter:drop-shadow(0 18px 56px rgba(91,158,255,.35))}
+  .hero h1{font-size:clamp(34px,5vw,58px);margin:0 0 20px;line-height:1.1;
+       letter-spacing:-.6px;font-weight:700;color:var(--text)}
+  .hero h1 .accent{background:linear-gradient(120deg,var(--accent) 0%,var(--accent-2) 100%);
+       -webkit-background-clip:text;background-clip:text;color:transparent;
+       text-shadow:0 0 40px rgba(91,158,255,.25)}
+  .hero .lead{color:var(--muted);font-size:clamp(15.5px,1.7vw,18px);max-width:720px;
+       margin:0 auto 36px;line-height:1.65}
+  .hero .cta{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-bottom:24px}
+  .hero .cta a{display:inline-flex;align-items:center;gap:8px;
+       padding:14px 26px;border-radius:12px;font-weight:700;font-size:15.5px;letter-spacing:-.1px;
+       transition:all .15s}
+  .hero .cta .primary{background:linear-gradient(120deg,var(--accent),var(--accent-2));
+       color:#06080f;border:1px solid transparent;
+       box-shadow:0 10px 28px -10px rgba(91,158,255,.6)}
+  .hero .cta .primary:hover{transform:translateY(-1px);text-decoration:none;
+       box-shadow:0 14px 36px -8px rgba(91,158,255,.7)}
+  .hero .cta .secondary{background:rgba(16,21,31,.7);border:1px solid var(--line);color:var(--text);
+       backdrop-filter:blur(8px);box-shadow:var(--shadow-sm)}
+  .hero .cta .secondary:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+  .hero .pills{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;font-size:13px;
+       color:var(--muted);margin-top:18px}
+  .hero .pills span{display:inline-flex;align-items:center;gap:6px;
+       padding:6px 14px;background:rgba(16,21,31,.5);border:1px solid var(--line);border-radius:999px;
+       backdrop-filter:blur(8px)}
+  .hero .pills .glyph{font-size:13px;color:var(--accent)}
+
+  /* Layout */
+  main{max-width:1180px;margin:0 auto;padding:8px clamp(20px,4vw,40px) 60px}
+  section{margin:96px 0;scroll-margin-top:84px}
+  section .head{margin-bottom:42px;text-align:center}
+  section .head .tag{display:inline-block;color:var(--accent);font-size:13px;font-weight:700;
+       letter-spacing:1.6px;text-transform:uppercase;margin-bottom:14px}
+  section .head h2{font-size:clamp(26px,3.4vw,38px);margin:0 0 14px;line-height:1.2;
+       letter-spacing:-.4px;font-weight:700;color:var(--text)}
+  section .head h2 .accent{background:linear-gradient(120deg,var(--accent),var(--accent-2));
+       -webkit-background-clip:text;background-clip:text;color:transparent}
+  section .head p{color:var(--muted);font-size:15.5px;max-width:680px;margin:0 auto;line-height:1.75}
+
+  /* Without/With */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:880px){.compare{grid-template-columns:1fr}}
+  .compare .col{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);
+       padding:0;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .compare .col header{padding:20px 24px;border-bottom:1px solid var(--line-soft);
+       display:flex;align-items:center;gap:10px;font-weight:700;font-size:13px;letter-spacing:1.4px;text-transform:uppercase}
+  .compare .col.bad header{color:var(--bad)}
+  .compare .col.good header{color:var(--good)}
+  .compare .col header .glyph{display:inline-flex;align-items:center;justify-content:center;
+       width:24px;height:24px;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:0;text-transform:none}
+  .compare .col.bad header .glyph{background:rgba(248,113,113,.14);color:var(--bad)}
+  .compare .col.good header .glyph{background:rgba(34,197,94,.14);color:var(--good)}
+  .compare .col .body{padding:22px 24px}
+  .compare .terminal{background:#06080f;color:#c9d1d9;border-radius:10px;padding:18px 20px;
+       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.8px;line-height:1.65;
+       overflow:auto;border:1px solid #161b27}
+  .compare .terminal .prompt{color:#5d6577;user-select:none}
+  .compare .terminal .cmd{color:#e8edf6}
+  .compare .terminal .err{color:#ff8a82}
+  .compare .terminal .ok{color:#7ee787}
+  .compare .terminal .dim{color:#5d6577}
+  .compare .checks{list-style:none;margin:0;padding:0}
+  .compare .checks li{display:flex;align-items:flex-start;gap:14px;padding:12px 0;
+       border-bottom:1px solid var(--line-soft);font-size:14.5px;color:var(--text-2)}
+  .compare .checks li:last-child{border-bottom:none}
+  .compare .checks li::before{content:"✓";flex:0 0 22px;height:22px;border-radius:50%;
+       background:rgba(34,197,94,.16);color:var(--good);font-weight:700;font-size:13px;
+       display:inline-flex;align-items:center;justify-content:center;margin-top:1px}
+  .compare .checks li b{color:var(--text);font-weight:600}
+
+  /* Cards */
+  .grid{display:grid;gap:16px}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-2{grid-template-columns:1fr 1fr}
+  @media(max-width:1080px){.grid-4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:680px){.grid-4{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+       padding:22px;transition:transform .18s,border-color .18s,box-shadow .18s;position:relative}
+  .card:hover{border-color:var(--accent-soft-2);transform:translateY(-2px);box-shadow:var(--shadow-glow)}
+  .card .icon{display:inline-flex;align-items:center;justify-content:center;
+       width:42px;height:42px;border-radius:11px;
+       background:var(--accent-soft);color:var(--accent);font-size:20px;margin-bottom:14px;
+       border:1px solid var(--accent-soft-2)}
+  .card h3{margin:0 0 8px;font-size:16px;font-weight:600;color:var(--text);letter-spacing:-.2px}
+  .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.75}
+
+  /* Diagram link cards (no nested anchors) */
+  .link-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+       transition:transform .18s,border-color .18s,box-shadow .18s;
+       display:flex;flex-direction:column;overflow:hidden}
+  .link-card:hover{border-color:var(--accent-soft-2);transform:translateY(-2px);box-shadow:var(--shadow-glow)}
+  .link-card .card-link{display:block;padding:22px 22px 14px;color:inherit;text-decoration:none;flex:1}
+  .link-card .card-link:hover{text-decoration:none}
+  .link-card .card-link .icon{display:inline-flex;align-items:center;justify-content:center;
+       width:42px;height:42px;border-radius:11px;
+       background:var(--accent-soft);color:var(--accent);font-size:20px;margin-bottom:14px;
+       border:1px solid var(--accent-soft-2)}
+  .link-card .card-link h3{margin:0 0 8px;font-size:17px;font-weight:600;color:var(--accent);letter-spacing:-.2px}
+  .link-card .card-link p{margin:0;color:var(--muted);font-size:14px;line-height:1.75}
+  .link-card .alt{display:block;padding:0 22px 18px;font-size:12.5px;color:var(--muted-2)}
+  .link-card .alt a{color:var(--accent);font-weight:500}
+
+  /* Steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:step}
+  @media(max-width:880px){.steps{grid-template-columns:1fr}}
+  .step{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+       padding:26px 24px 24px;box-shadow:var(--shadow-sm);counter-increment:step;
+       transition:border-color .18s,box-shadow .18s}
+  .step:hover{border-color:var(--accent-soft-2);box-shadow:var(--shadow-glow)}
+  .step::before{content:counter(step,decimal-leading-zero);
+       position:absolute;top:18px;right:22px;
+       font-family:ui-monospace,Menlo,Consolas,monospace;
+       font-size:42px;font-weight:700;line-height:1;letter-spacing:-1.5px;
+       background:linear-gradient(120deg,var(--accent),var(--accent-2));
+       -webkit-background-clip:text;background-clip:text;color:transparent;opacity:.45}
+  .step h3{margin:0 0 10px;font-size:18px;font-weight:600;letter-spacing:-.2px;color:var(--text)}
+  .step p{margin:0 0 14px;color:var(--muted);font-size:14.5px}
+  .step pre{margin:0}
+
+  /* Code */
+  pre,code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  pre{background:#06080f;color:#d8dde8;border:1px solid #161b27;border-radius:10px;
+       padding:14px 16px;overflow:auto;font-size:12.8px;line-height:1.7}
+  pre .c{color:#5d6577}
+  pre .k{color:#79c0ff}
+  pre .s{color:#a5d6ff}
+  pre .ok{color:#7ee787}
+  code.inline{background:var(--surface-2);padding:2px 7px;border-radius:5px;font-size:13px;
+       border:1px solid var(--line);color:var(--accent)}
+
+  /* Tabs */
+  .tabs{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);
+       overflow:hidden;box-shadow:var(--shadow-sm)}
+  .tabs input[type=radio]{position:absolute;opacity:0;pointer-events:none}
+  .tabs .labels{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line);
+       background:var(--surface-2)}
+  .tabs label{padding:14px 20px;font-size:14px;font-weight:600;color:var(--muted);
+       cursor:pointer;user-select:none;transition:color .15s,background .15s;
+       border-right:1px solid var(--line-soft)}
+  .tabs label:hover{color:var(--text)}
+  .tabs label .count{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;
+       font-size:11px;background:rgba(91,158,255,.10);color:var(--accent);font-weight:600}
+  .tabs .panel{display:none;padding:22px 24px}
+  .tabs #t1:checked ~ .labels label[for=t1],
+  .tabs #t2:checked ~ .labels label[for=t2],
+  .tabs #t3:checked ~ .labels label[for=t3],
+  .tabs #t4:checked ~ .labels label[for=t4]{color:var(--accent);background:var(--surface);
+       box-shadow:inset 0 -2px 0 var(--accent)}
+  .tabs #t1:checked ~ #p1,
+  .tabs #t2:checked ~ #p2,
+  .tabs #t3:checked ~ #p3,
+  .tabs #t4:checked ~ #p4{display:block}
+  .pill-grid{display:flex;flex-wrap:wrap;gap:10px}
+  .pill{display:inline-flex;align-items:center;gap:7px;
+       padding:8px 14px;background:rgba(255,255,255,.03);
+       border:1px solid var(--line);border-radius:999px;
+       font-size:13.5px;color:var(--text-2);transition:all .15s;font-weight:500}
+  .pill:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .pill.muted{color:var(--muted-2);background:transparent}
+
+  .qs-tabs .panel{padding:0}
+  .qs-tabs .panel pre{margin:0;border:none;border-radius:0}
+  .qs-tabs .panel .note{padding:14px 20px;border-top:1px solid var(--line);
+       color:var(--muted);font-size:13.5px;background:var(--surface-2)}
+
+  /* REPL */
+  .repl{background:#06080f;border:1px solid #161b27;border-radius:var(--radius-lg);
+       overflow:hidden;box-shadow:var(--shadow-lg)}
+  .repl .titlebar{display:flex;align-items:center;gap:10px;padding:12px 16px;
+       background:#0c1019;border-bottom:1px solid #161b27}
+  .repl .titlebar .dots{display:flex;gap:6px}
+  .repl .titlebar .dots span{width:11px;height:11px;border-radius:50%}
+  .repl .titlebar .dots .r{background:#f85149}
+  .repl .titlebar .dots .y{background:#d29922}
+  .repl .titlebar .dots .g{background:#3fb950}
+  .repl .titlebar .name{color:#8b949e;font-size:12.5px;
+       font-family:ui-monospace,Menlo,Consolas,monospace;margin-left:10px}
+  .repl .body{padding:18px 22px;color:#c9d1d9;
+       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+       font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+  .repl .body .you{color:#79c0ff}
+  .repl .body .ai{color:#7ee787}
+  .repl .body .dim{color:#5d6577}
+  .repl .body .warn{color:#fbbf24}
+  .repl .body .acc{color:#a5d6ff}
+
+  /* Compare table */
+  table{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px;
+       background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);
+       overflow:hidden;box-shadow:var(--shadow-sm)}
+  thead th{background:var(--surface-2);color:var(--muted);font-weight:600;
+       padding:14px 18px;text-align:left;border-bottom:1px solid var(--line);
+       font-size:12.5px;text-transform:uppercase;letter-spacing:.6px}
+  tbody td{padding:14px 18px;border-bottom:1px solid var(--line-soft);vertical-align:top;color:var(--text-2)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody td:first-child{color:var(--text);font-weight:500;width:30%}
+  tbody td:nth-child(2){color:var(--muted)}
+  tbody td:nth-child(3){color:var(--text-2)}
+
+  /* FAQ */
+  .faq details{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+       padding:18px 22px;margin:10px 0;box-shadow:var(--shadow-sm);transition:border-color .15s}
+  .faq details[open]{border-color:var(--accent-soft-2)}
+  .faq summary{cursor:pointer;font-weight:600;color:var(--text);font-size:15.5px;list-style:none;
+       display:flex;justify-content:space-between;align-items:center;gap:14px;letter-spacing:-.1px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";color:var(--muted);font-size:22px;font-weight:300;line-height:1;
+       transition:transform .18s}
+  .faq details[open] summary::after{content:"−";color:var(--accent)}
+  .faq details p{color:var(--muted);margin:14px 0 0;font-size:14.5px;line-height:1.85}
+  .faq details p code.inline{background:var(--surface-2);border-color:var(--line)}
+
+  /* Resources */
+  .res{display:grid;grid-template-columns:1fr 1fr;gap:8px 32px;list-style:none;padding:0;margin:0}
+  @media(max-width:720px){.res{grid-template-columns:1fr}}
+  .res li{padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:14.5px;color:var(--muted)}
+  .res li a{color:var(--text)}
+  .res li a:hover{color:var(--accent)}
+
+  /* CTA banner */
+  .cta-banner{margin:96px 0 0;padding:64px clamp(28px,5vw,72px);
+       background:
+         radial-gradient(800px 400px at 80% -50%, rgba(91,158,255,.4), transparent 60%),
+         radial-gradient(700px 360px at 0% 110%, rgba(20,212,177,.22), transparent 60%),
+         linear-gradient(135deg,#0a0e1a 0%,#11192a 100%);
+       color:#fff;border:1px solid var(--line);
+       border-radius:var(--radius-lg);text-align:center;position:relative;overflow:hidden}
+  .cta-banner > *{position:relative;z-index:1}
+  .cta-banner h2{font-size:clamp(24px,2.8vw,34px);margin:0 0 12px;letter-spacing:-.3px;line-height:1.25;color:#fff}
+  .cta-banner p{color:#a5b3c7;font-size:15.5px;max-width:560px;margin:0 auto 26px}
+  .cta-banner .row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px}
+  .cta-banner a{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;
+       border-radius:12px;font-weight:700;font-size:15.5px;transition:all .15s}
+  .cta-banner .primary{background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#06080f;
+       box-shadow:0 10px 28px -10px rgba(91,158,255,.6)}
+  .cta-banner .primary:hover{transform:translateY(-1px);text-decoration:none;
+       box-shadow:0 14px 36px -8px rgba(91,158,255,.7)}
+  .cta-banner .secondary{border:1px solid rgba(255,255,255,.18);color:#fff;background:rgba(255,255,255,.04)}
+  .cta-banner .secondary:hover{border-color:#fff;text-decoration:none}
+
+  /* Footer */
+  footer{padding:72px clamp(20px,4vw,40px) 56px;border-top:1px solid var(--line);margin-top:96px;
+       background:var(--bg-alt)}
+  .foot-grid{max-width:1180px;margin:0 auto;
+       display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
+  @media(max-width:880px){.foot-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.foot-grid{grid-template-columns:1fr}}
+  .foot-brand{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-weight:700;color:var(--text)}
+  .foot-brand img{width:30px;height:30px;border-radius:8px}
+  .foot-tag{color:var(--muted);font-size:13.5px;line-height:1.75;max-width:300px}
+  .foot-col h4{font-size:12.5px;font-weight:700;color:var(--text);margin:0 0 14px;
+       letter-spacing:1px;text-transform:uppercase}
+  .foot-col ul{list-style:none;margin:0;padding:0}
+  .foot-col li{margin:8px 0;font-size:14px}
+  .foot-col li a{color:var(--muted)}
+  .foot-col li a:hover{color:var(--accent)}
+  .foot-bot{max-width:1180px;margin:42px auto 0;padding-top:20px;border-top:1px solid var(--line-soft);
+       display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+       color:var(--muted-2);font-size:12.5px}
 </style>
 </head>
 <body>
 
 <nav class="nav">
-  <div class="brand">EvoClaw</div>
-  <div class="links">
-    <a href="#features">特性</a>
+  <a class="brand" href="#top">
+    <img src="image/EvoClaw2.png" alt="EvoClaw">
+    <span>EvoClaw</span>
+  </a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav .center').classList.toggle('open')" aria-label="菜单">≡</button>
+  <div class="center">
+    <a href="#features">能力</a>
+    <a href="#how">三步上手</a>
+    <a href="#integrations">集成</a>
     <a href="#diagrams">架构图</a>
-    <a href="#redaction">密钥屏障</a>
-    <a href="#interop">ACP / MCP</a>
-    <a href="#quickstart">快速上手</a>
-    <a href="#faq">常见问题</a>
-    <a href="https://github.com/DevEloLin/evoclaw" target="_blank" rel="noopener">GitHub</a>
-    <a href="index.html">English</a>
+    <a href="#quickstart">快速开始</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <div class="right">
+    <a class="lang" href="index.html">English</a>
+    <a class="gh" href="https://github.com/DevEloLin/evoclaw" target="_blank" rel="noopener">★ GitHub</a>
   </div>
 </nav>
 
-<header class="hero">
-  <img class="logo" src="image/EvoClaw2.png" alt="EvoClaw" width="200" height="200">
-  <h1><span class="accent">自主进化</span>的个人 AI 助手（Rust）</h1>
-  <p class="lead">EvoClaw 把 agent 循环跑在你自己的笔记本上。每次任务都在学习、密钥在 runtime 边界就被脱敏不会进入模型 API、长会话 token 成本降到约 1/3。ACP + MCP 标准协议互通。MIT 开源。</p>
+<header class="hero" id="top">
+  <span class="eyebrow"><span class="dot"></span> <b>v0.1.9</b> · 153+ 测试全绿 · MIT 开源</span>
+  <img class="logo" src="image/EvoClaw2.png" alt="EvoClaw" width="148" height="148">
+  <h1>属于你自己的<br><span class="accent">自主进化</span> AI 助手。</h1>
+  <p class="lead">EvoClaw 把 agent 循环搬到你的笔记本上。每次任务都在学习，密钥在边界处脱敏永远不进入模型 API，长会话 token 成本降到约 1/3。ACP&nbsp;+&nbsp;MCP 标准互通，开源 MIT。</p>
   <div class="cta">
-    <a class="primary" href="https://github.com/DevEloLin/evoclaw" target="_blank" rel="noopener">在 GitHub 上 Star →</a>
-    <a class="secondary" href="#quickstart">快速上手</a>
+    <a class="primary" href="#quickstart">→ 立即上手</a>
+    <a class="secondary" href="https://github.com/DevEloLin/evoclaw" target="_blank" rel="noopener">★ GitHub Star</a>
   </div>
-  <div class="badges">
-    <span>Rust 1.80+</span>
-    <span>macOS · Linux · Windows</span>
-    <span>153+ 测试全绿</span>
-    <span>核心约 6K LOC</span>
-    <span>零遥测</span>
+  <div class="pills">
+    <span><span class="glyph">⚙</span> Rust 1.80+</span>
+    <span><span class="glyph">▣</span> macOS · Linux · Windows</span>
+    <span><span class="glyph">∎</span> 核心约 8K LOC</span>
+    <span><span class="glyph">⛔</span> 零遥测</span>
   </div>
 </header>
 
 <main>
 
-<section id="why">
-  <h2>为什么再做一个 Agent Runtime？</h2>
-  <p class="lede">现代 coding agent 能读你的代码、跑 shell、调外部 API、写文件 —— 这是相当长的一份能力清单要交给一个不归你管的东西。EvoClaw 填的是矩阵里"本地优先"那一格。</p>
-  <div class="grid3">
-    <div class="card">
-      <h3>代码留在本机</h3>
-      <p>唯一出本机的网络调用是你自己选的模型 API。其他东西全部落到 <code class="inline">~/.evoclaw/</code> 下。托管 SaaS agent 把 prompt 进它们的日志，EvoClaw 在 runtime 边界处把 prompt 先 scrub 一遍。</p>
+<!-- 没有 vs 有 EvoClaw -->
+<section id="without-with">
+  <div class="head">
+    <span class="tag">差距</span>
+    <h2>没有 EvoClaw vs <span class="accent">有了 EvoClaw</span></h2>
+    <p>SaaS Agent 把每条 prompt 都打进它们的日志，把你的代码索引在它们的服务器上，等你想问"上周二那次任务到底发生了什么"已经无迹可寻。EvoClaw 把这个循环重新接到你自己的机器上。</p>
+  </div>
+  <div class="compare">
+    <div class="col bad">
+      <header><span class="glyph">✕</span> 没有 EvoClaw</header>
+      <div class="body">
+<pre class="terminal"><span class="prompt">$</span> <span class="cmd">cat ~/.bashrc | grep -i token | curl acme-ai.com/chat</span>
+<span class="err">!! prompt 已记录到 acme-ai.com:443，每个字节被索引</span>
+<span class="prompt">$</span> <span class="cmd">acme-ai chat "修一下生产数据库迁移"</span>
+<span class="err">!! GHP_xxxx 在 tool 参数里裸奔，进了厂商后台</span>
+<span class="prompt">$</span> <span class="cmd">acme-ai replay last-tuesday</span>
+<span class="err">ERROR: 免费版日志只保留 24 小时</span>
+<span class="prompt">$</span> <span class="cmd">acme-ai run --offline</span>
+<span class="err">ERROR: 后端不可达，账号已暂停</span>
+<span class="dim">14 prompt 之前 · 花费 ¥13.40 · cache hit 不知道</span></pre>
+      </div>
     </div>
-    <div class="card">
-      <h3>密钥不会进模型</h3>
-      <p>Redactor 在 ConversationRuntime 的 6 个注入点都会跑。Vault 已注册的值替换为 <code class="inline">${SECRET:NAME}</code>，未注册但形状像凭据的串替换为 <code class="inline">[REDACTED:kind:fp]</code>。两层都是幂等的。</p>
-    </div>
-    <div class="card">
-      <h3>花费可控</h3>
-      <p>5 招叠加 — schema 指纹、ephemeral cache、summary 协议、头尾截断、周期压缩 — 让长任务实测花费降到约 1/3。每招都有单元测试压住。</p>
+    <div class="col good">
+      <header><span class="glyph">✓</span> 有了 EvoClaw</header>
+      <div class="body">
+        <ul class="checks">
+          <li><div><b>本地优先。</b>唯一向外的网络包是你自己挑的模型 API。其他全部留在 <code class="inline">~/.evoclaw/</code>。</div></li>
+          <li><div><b>密钥永远不进入模型。</b>两层 redactor 在 6 个边界点幂等地脱敏 prompt、tool 参数与 assistant 回复。</div></li>
+          <li><div><b>任意会话可回放。</b>每个任务一份 append-only JSONL。<code class="inline">evo replay</code> 把上周二那次任务原样还原。</div></li>
+          <li><div><b>断网模式。</b>把 <code class="inline">model.base_url</code> 指到 Ollama / vLLM / llama.cpp，循环不变，无需联网。</div></li>
+          <li><div><b>长任务花费 ≈ 1/3。</b>5 招叠加，缓存命中率稳定 ≥ 60%。</div></li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
 
-<section id="diagrams">
-  <h2>架构图与设计图</h2>
-  <p class="lede">两个页面、四种语言。架构页把每个模块画在同一画布上；设计页覆盖每条状态机、时序图、闭环规则。点进去看。</p>
-  <div class="grid2">
-    <a class="card link-card" href="architecture-zh.html">
-      <h3>系统架构 →</h3>
-      <p>一张图看懂 · 七层泳道（CSS 布局，每层横向铺开）· 单任务 runtime 闭环 · 密钥屏障 · Token 经济 · ACP / MCP 互通 · 部署拓扑 · 存储索引。</p>
-      <span class="alt">also: <a href="architecture-en.html">English</a></span>
-    </a>
-    <a class="card link-card" href="design-zh.html">
-      <h3>设计图 →</h3>
-      <p>Task / Skill / Memory 状态机 · ER 模型 · 单任务端到端时序 · ACP 委派循环 · MCP 工具调用 · 权限阶梯 · 13 行闭环验收矩阵。</p>
-      <span class="alt">also: <a href="design-en.html">English</a></span>
-    </a>
-  </div>
-</section>
-
+<!-- 8 个能力 -->
 <section id="features">
-  <h2>开箱即得</h2>
-  <div class="grid2">
+  <div class="head">
+    <span class="tag">核心能力</span>
+    <h2>8 个支撑能力。</h2>
+    <p>让一个长跑 Agent runtime 值得你信任、敢让它在真实机器上无人值守地跑 —— 缺一不可。</p>
+  </div>
+  <div class="grid grid-4">
     <div class="card">
+      <div class="icon">🌳</div>
       <h3>自主进化的 Skill Tree</h3>
-      <p>每次任务结束都跑一次反思回合，蒸馏出一份 YAML Skill 写到磁盘。五态机 EWMA 老化：<b>Draft → Candidate → Active → Degraded → Deprecated</b>。Active 自动喂给下次 planner。<code class="inline">evoclaw skill tree</code>。</p>
+      <p>YAML 技能 + 五态 EWMA 生命周期（Draft → Candidate → Active → Degraded → Deprecated）。Active 技能进入下一轮 planner。</p>
     </div>
     <div class="card">
-      <h3>分层记忆 L0 至 L5</h3>
-      <p>L0 scratch、L1 用户偏好、L2 环境事实（90 天 age out）、L3 任务记录、L4 模型反思、L5 冷存。**故意做的** JSONL + grep —— 向量在检索时要花 prompt token；针对类型化记忆层的子串匹配不会。</p>
+      <div class="icon">🔒</div>
+      <h3>密钥隔离屏障</h3>
+      <p>Vault 命中变 <code class="inline">${SECRET:NAME}</code>；模式兜底变 <code class="inline">[REDACTED:kind:fp]</code>。6 个边界点幂等。</p>
     </div>
     <div class="card">
+      <div class="icon">📉</div>
+      <h3>Token 经济</h3>
+      <p>Schema 指纹、ephemeral cache、summary 协议、头尾截断、周期压缩。长任务花费 ≈ 1/3。</p>
+    </div>
+    <div class="card">
+      <div class="icon">🧠</div>
+      <h3>分层记忆 L0–L5</h3>
+      <p>Scratch / 偏好 / 环境事实（90 天淘汰）/ 任务记录 / 反思 / 冷归档。JSONL + grep，召回不耗 prompt。</p>
+    </div>
+    <div class="card">
+      <div class="icon">🧾</div>
       <h3>Append-only JSONL 回放</h3>
-      <p>一任务一份日志，一记录一行 JSON（Task / Turn / End）。<code class="inline">evoclaw replay</code> 重建任意会话；<code class="inline">doctor closure</code> 审计每份日志是否完整闭环。</p>
+      <p>一任务一日志，一记录一 JSON。<code class="inline">evo replay</code> 还原任意会话；<code class="inline">doctor closure</code> 校验日志闭合。</p>
     </div>
     <div class="card">
-      <h3>三级预算引擎</h3>
-      <p>per-task hard stop、per-day soft warn + hard cap（4×）、per-month hard cap。<code class="inline">doctor-of tokens</code> 看 7 天 / 30 天花费与缓存命中率。</p>
+      <div class="icon">💰</div>
+      <h3>三层预算引擎</h3>
+      <p>任务硬停 / 日软警 + 4× 硬停 / 月度硬停。<code class="inline">doctor tokens</code> 看 7 天 / 30 天花费与命中率。</p>
     </div>
     <div class="card">
-      <h3>P0 至 P8 权限阶梯</h3>
-      <p>由 <code class="inline">evo-policy::Permission</code> 全序约束。默认上限 P1（workspace 写）。渠道发送方无视 config 硬封顶 P4。</p>
+      <div class="icon">🛡</div>
+      <h3>P0–P8 权限阶梯</h3>
+      <p>在 <code class="inline">evo-policy::Permission</code> 里强制有序。默认上限 P1；渠道发送方硬封顶 P4。</p>
     </div>
     <div class="card">
-      <h3>双 binary，单 CLI</h3>
-      <p><code class="inline">evoclaw</code>（长格式）与 <code class="inline">evo</code>（3 字母短别名）共享同一份 lib。不带子命令直接进 REPL —— 跟主流 coding CLI 一致的体验。</p>
+      <div class="icon">⌨</div>
+      <h3>一份 CLI、两个二进制</h3>
+      <p><code class="inline">evoclaw</code> 长名 + <code class="inline">evo</code> 三字母别名 —— 同一份 lib。直接打名字进 REPL。</p>
     </div>
   </div>
 </section>
 
-<section id="redaction">
-  <h2>密钥隔离屏障</h2>
-  <p class="lede">两层互补防线。<b>用户输入的任意 key / 密码 / OAuth token 永不通过模型 API 离开本机。</b></p>
-  <pre class="ascii">
-┌─────────────────────────────────────────────────────────────────┐
-│  user input · tool args · tool output · assistant text          │
-└──────────┬──────────────────────────────────────────────────────┘
-           ▼
-   ┌───────────────────────┐  vault 命中?  ┌─────────────────────┐
-   │  Vault 命名替换         │ ───是───→    │  ${SECRET:NAME}      │
-   │  vault.json chmod 600 │              └─────────────────────┘
-   └─────────┬─────────────┘
-             ▼ 否
-   ┌───────────────────────┐  模式命中?    ┌─────────────────────┐
-   │  模式兜底              │ ───是───→    │ [REDACTED:kind:fp]   │
-   │  sk-* · ghp_* · eyJ*  │              │ 同密钥同指纹便于对照  │
-   │  AKIA* · 高熵串        │              └─────────────────────┘
-   └─────────┬─────────────┘
-             ▼ 不识别
-       （普通文本，原样通过）
-             ▼
-   ┌────────────────────────────────────────────────────────────┐
-   │  模型 API 调用 · JSONL 会话日志 · 记忆层                    │
-   └────────────────────────────────────────────────────────────┘
-  </pre>
-</section>
-
-<section id="interop">
-  <h2>标准协议互通</h2>
-  <div class="grid2">
-    <div class="card">
-      <h3>ACP — 把循环交出去</h3>
-      <p>在 <code class="inline">~/.evoclaw/config.toml</code> 设 <code class="inline">provider = "acp:claude"</code>（或 codex / cursor / copilot）。EvoClaw 把上游 CLI spawn 成子进程，通过 ACP（JSON-RPC over stdio）转发 prompt。认证留在上游 CLI 自己手里。</p>
+<!-- 三步走 -->
+<section id="how">
+  <div class="head">
+    <span class="tag">三步上手</span>
+    <h2>从 clone 到第一条任务，<span class="accent">三步</span>。</h2>
+    <p>编译、配置、跑。其余的交给向导。</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <h3>编译</h3>
+      <p>克隆仓库，让 cargo 干活。单一静态二进制，热缓存约 30 秒。</p>
+<pre><span class="c"># Rust 1.80+</span>
+git clone https://github.com/<span class="k">DevEloLin/evoclaw</span>
+cd evoclaw &amp;&amp; cargo build --release</pre>
     </div>
-    <div class="card">
-      <h3>MCP — 自带工具进来</h3>
-      <p>跑任意标准 Anthropic Model Context Protocol 服务器 —— filesystem / GitHub / fetch / time / Brave / Postgres / Slack 或自写。工具在 ToolRegistry 中以 <code class="inline">mcp__server__tool</code> 命名。鉴权 env 在 <code class="inline">mcp add</code> 时落盘，模型完全看不见。</p>
+    <div class="step">
+      <h3>配置</h3>
+      <p>首启动跑交互向导：选 provider（17 家厂商）、贴 API key、挑模型。</p>
+<pre>./target/release/evoclaw
+<span class="c"># 向导写入 ~/.evoclaw/config.toml</span>
+<span class="c"># 密钥落到 ~/.evoclaw/secrets/vault.json (chmod 600)</span></pre>
+    </div>
+    <div class="step">
+      <h3>跑</h3>
+      <p>输任务。EvoClaw 规划、调工具、观察、再规划、收尾 —— 然后默默蒸馏一份 Skill。</p>
+<pre>evo run <span class="s">"诊断我的 SSH 为什么断流"</span>
+evo replay   <span class="c"># 完整反思追踪</span>
+evo skill tree</pre>
     </div>
   </div>
 </section>
 
+<!-- 集成 -->
+<section id="integrations">
+  <div class="head">
+    <span class="tag">集成</span>
+    <h2>和你已经在用的 <span class="accent">一切</span> 互通。</h2>
+    <p>17 家模型厂商、7 个 ACP coding agent、7 个 MCP 服务、4 种本地 runtime —— 全部走标准协议，没有私有粘合层。</p>
+  </div>
+  <div class="tabs">
+    <input type="radio" name="integ" id="t1" checked>
+    <input type="radio" name="integ" id="t2">
+    <input type="radio" name="integ" id="t3">
+    <input type="radio" name="integ" id="t4">
+    <div class="labels">
+      <label for="t1">模型厂商 <span class="count">17</span></label>
+      <label for="t2">ACP 代理 <span class="count">7</span></label>
+      <label for="t3">MCP 服务 <span class="count">7</span></label>
+      <label for="t4">本地 runtime <span class="count">4</span></label>
+    </div>
+    <div class="panel" id="p1">
+      <div class="pill-grid">
+        <span class="pill">DeepSeek</span><span class="pill">Kimi</span><span class="pill">Qwen 通义千问</span>
+        <span class="pill">豆包</span><span class="pill">智谱 GLM</span><span class="pill">百度千帆</span>
+        <span class="pill">MiniMax</span><span class="pill">阶跃星辰</span><span class="pill">腾讯混元</span>
+        <span class="pill">OpenAI</span><span class="pill">Anthropic</span><span class="pill">Gemini</span>
+        <span class="pill">Mistral</span><span class="pill">Groq</span><span class="pill">OpenRouter</span>
+        <span class="pill">Together</span><span class="pill">Fireworks</span>
+      </div>
+    </div>
+    <div class="panel" id="p2">
+      <div class="pill-grid">
+        <span class="pill">Claude Code</span><span class="pill">Codex</span><span class="pill">Cursor</span>
+        <span class="pill">GitHub Copilot</span><span class="pill">Gemini CLI</span>
+        <span class="pill">Aider</span><span class="pill">通义灵码 Qwen Code</span>
+      </div>
+      <p style="color:var(--muted);font-size:14px;margin:18px 0 0">在 <code class="inline">~/.evoclaw/config.toml</code> 设 <code class="inline">provider = "acp:claude"</code> —— EvoClaw 拉起上游 CLI 子进程，通过 stdio JSON-RPC 转发 prompt。</p>
+    </div>
+    <div class="panel" id="p3">
+      <div class="pill-grid">
+        <span class="pill">filesystem</span><span class="pill">GitHub</span><span class="pill">fetch</span>
+        <span class="pill">time</span><span class="pill">Brave Search</span>
+        <span class="pill">Postgres</span><span class="pill">Slack</span>
+        <span class="pill muted">+ 自带服务</span>
+      </div>
+      <p style="color:var(--muted);font-size:14px;margin:18px 0 0">工具在注册表里以 <code class="inline">mcp__server__tool</code> 出现。鉴权环境变量在 <code class="inline">mcp add</code> 时被截留，永远不进入模型。</p>
+    </div>
+    <div class="panel" id="p4">
+      <div class="pill-grid">
+        <span class="pill">Ollama</span><span class="pill">vLLM</span>
+        <span class="pill">llama.cpp</span><span class="pill">任意 OpenAI 兼容地址</span>
+      </div>
+      <p style="color:var(--muted);font-size:14px;margin:18px 0 0">把 <code class="inline">model.base_url</code> 指到 <code class="inline">http://localhost:11434/v1</code>（Ollama）或任意本地服务。跳过 API key 步骤。Redactor 与 skill tree 照常工作。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 快速开始 -->
 <section id="quickstart">
-  <h2>快速上手</h2>
-  <p class="lede">编译 → 敲 <code class="inline">evoclaw</code> → 跟向导走。无需包管理器。零遥测。无需注册账号。</p>
-  <pre>git clone https://github.com/DevEloLin/evoclaw &amp;&amp; cd evoclaw
+  <div class="head">
+    <span class="tag">快速开始</span>
+    <h2>挑一个安装方式。</h2>
+    <p>不需要注册账号。零遥测。也不会强制你"先创建账号"。</p>
+  </div>
+  <div class="tabs qs-tabs">
+    <input type="radio" name="qs" id="q1" checked>
+    <input type="radio" name="qs" id="q2">
+    <input type="radio" name="qs" id="q3">
+    <div class="labels">
+      <label for="q1">从源码编译</label>
+      <label for="q2">cargo install</label>
+      <label for="q3">第一条任务</label>
+    </div>
+    <style>
+      .qs-tabs #q1:checked ~ .labels label[for=q1],
+      .qs-tabs #q2:checked ~ .labels label[for=q2],
+      .qs-tabs #q3:checked ~ .labels label[for=q3]{color:var(--accent);background:var(--surface);
+         box-shadow:inset 0 -2px 0 var(--accent)}
+      .qs-tabs #q1:checked ~ #qs-p1,
+      .qs-tabs #q2:checked ~ #qs-p2,
+      .qs-tabs #q3:checked ~ #qs-p3{display:block}
+    </style>
+    <div class="panel" id="qs-p1">
+<pre><span class="c"># macOS · Linux · Windows — 需要 Rust 1.80+</span>
+git clone https://github.com/<span class="k">DevEloLin/evoclaw</span> &amp;&amp; cd evoclaw
 cargo build --workspace --release
-./target/release/evoclaw                 # 首次启动会跑交互式向导
+./target/release/evoclaw                 <span class="c"># 首启动自动跑交互向导</span></pre>
+      <div class="note">向导写完 <code class="inline">~/.evoclaw/config.toml</code> 之后会直接落到 REPL。</div>
+    </div>
+    <div class="panel" id="qs-p2">
+<pre><span class="c"># 从 git tag 拉取并装到 ~/.cargo/bin（evoclaw + evo 两个二进制）</span>
+cargo install --locked --git https://github.com/<span class="k">DevEloLin/evoclaw</span> evo-cli
 
-# 注册密钥 —— 原值永不出本机
-evoclaw secret add github_pat ghp_yourActualValueHere
+evoclaw                                  <span class="c"># 长名</span>
+evo                                      <span class="c"># 三字母别名 —— 同一份 lib</span></pre>
+      <div class="note">在 v0.2.0 发布到 crates.io 之前，从 git 直装是官方支持的方式。</div>
+    </div>
+    <div class="panel" id="qs-p3">
+<pre><span class="c"># 注册一个密钥 —— 值永远不出本机</span>
+evo secret add github_pat ghp_yourActualValueHere
 
-# 跑任务
-evoclaw run "排查为什么我连生产机的 SSH 偶尔卡住"
+<span class="c"># 跑一条任务</span>
+evo run <span class="s">"诊断我的 SSH 为什么断流"</span>
 
-# 复盘
-evoclaw replay
-</pre>
-  <p style="color:var(--muted);font-size:14px">完整指南：<a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/getting-started.md">中文版</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/getting-started.md">English</a></p>
+<span class="c"># 回放任意会话 —— 反思 / 花费 / 工具调用全在</span>
+evo replay</pre>
+      <div class="note">想用浏览器聊？<code class="inline">evo gateway --bind 127.0.0.1:7878 --token mychat</code> 在本机起一个 Bearer 保护的页面。</div>
+    </div>
+  </div>
 </section>
 
+<!-- REPL 演示 -->
+<section id="demo">
+  <div class="head">
+    <span class="tag">实时演示</span>
+    <h2>一次会话长这样。</h2>
+    <p>规划、调工具、观察、再规划 —— 然后默默把 Skill 落盘。</p>
+  </div>
+  <div class="repl">
+    <div class="titlebar">
+      <div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+      <span class="name">evo · ~/work/myrepo</span>
+    </div>
+    <div class="body"><span class="dim">╔══════════════════════════════════════════════════════════════════╗
+║      ███████╗██╗   ██╗ ██████╗  ██████╗██╗      █████╗ ██╗     ║
+║      ██╔════╝██║   ██║██╔═══██╗██╔════╝██║     ██╔══██╗██║     ║
+║      █████╗  ██║   ██║██║   ██║██║     ██║     ███████║██║     ║
+║      ██╔══╝  ╚██╗ ██╔╝██║   ██║██║     ██║     ██╔══██║██║     ║
+║      ███████╗ ╚████╔╝ ╚██████╔╝╚██████╗███████╗██║  ██║███████╗║
+║             local-first · self-evolving · v0.1.9                ║
+╚══════════════════════════════════════════════════════════════════╝</span>
+
+<span class="acc">┌─ context ─────────────────────────────────────────────────────┐
+│  home    : ~/.evoclaw                                         │
+│  provider: deepseek    (https://api.deepseek.com/v1)          │
+│  model   : deepseek-chat                                      │
+│  api key : ok · secrets file: ~/.evoclaw/secrets/deepseek.key │
+│  skills  : 12 loaded · 3 ACTIVE                               │
+└───────────────────────────────────────────────────────────────┘</span>
+
+<span class="you">›</span> <span class="you">把 ~/work 下的所有 Cargo.toml 总结一下，写到 cargo-toml-summary.txt</span>
+
+<span class="ai">→</span> 规划中... <span class="dim">[cache hit · 8/12 工具已 fingerprinted]</span>
+<span class="ai">→</span> tool: list_dir(<span class="acc">"~/work"</span>) <span class="dim">+ 12ms</span>
+<span class="ai">→</span> tool: read_file × 7 <span class="dim">+ 84ms · 头尾截断</span>
+<span class="ai">→</span> tool: write_file(cargo-toml-summary.txt, ...) <span class="dim">+ 6ms</span>
+<span class="ai">✓</span> 完成，<span class="warn">4 轮</span>，<span class="warn">¥0.014</span>，<span class="warn">cache 73%</span>
+
+<span class="dim">=== final ===</span>
+已写入 7 条路径到 cargo-toml-summary.txt。根目录：evoclaw、my-other-repo、...
+
+<span class="ai">⚡</span> 反思：蒸馏出新技能 <span class="acc">cargo-toml-aggregate</span> → <span class="warn">Draft</span>
+<span class="ai">⚡</span> 日志：<span class="acc">~/.evoclaw/logs/task-20260503T012245.823.jsonl</span>
+
+<span class="you">›</span> <span class="dim">_</span></div>
+  </div>
+</section>
+
+<!-- 架构图 -->
+<section id="diagrams">
+  <div class="head">
+    <span class="tag">参考</span>
+    <h2>架构与设计图。</h2>
+    <p>两个页面、四种语言。架构页是同一张画布上的全模块巡览；设计页覆盖每一个状态机、序列与闭合规则。</p>
+  </div>
+  <div class="grid grid-2">
+    <div class="link-card">
+      <a class="card-link" href="architecture-zh.html">
+        <div class="icon">🏛</div>
+        <h3>系统架构 →</h3>
+        <p>一页全景图 · 七层泳道（CSS grid 横向铺开）· runtime 端到端循环 · 脱敏屏障 · token 经济 · ACP / MCP 互通 · 部署拓扑 · 存储映射。</p>
+      </a>
+      <span class="alt">also: <a href="architecture-en.html">English</a></span>
+    </div>
+    <div class="link-card">
+      <a class="card-link" href="design-zh.html">
+        <div class="icon">🧩</div>
+        <h3>设计图 →</h3>
+        <p>Task / Skill / Memory FSM · ER 模型 · 单任务端到端时序 · ACP 委托循环 · MCP 工具调用 · 权限阶梯 · 13 行闭合矩阵。</p>
+      </a>
+      <span class="alt">also: <a href="design-en.html">English</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- SaaS 对比 -->
 <section id="cost-comparison">
-  <h2>托管 SaaS 与 EvoClaw 一表对照</h2>
+  <div class="head">
+    <span class="tag">对比一下</span>
+    <h2>托管 SaaS vs <span class="accent">EvoClaw</span>。</h2>
+    <p>同一组问题，问七遍。</p>
+  </div>
   <table>
-    <thead><tr><th>问题</th><th>托管 SaaS Agent</th><th>EvoClaw</th></tr></thead>
+    <thead><tr><th>问题</th><th>SaaS Agent</th><th>EvoClaw</th></tr></thead>
     <tbody>
-      <tr><td>我的代码去哪了？</td><td>每次 prompt 进它们后端</td><td>仅你选的模型 API；其他全部留在本机</td></tr>
-      <tr><td>我的密钥去哪了？</td><td>贴进对话框就进它们日志</td><td>vault.json chmod 600；模型只看到占位符</td></tr>
-      <tr><td>我的日志去哪了？</td><td>它们的服务器，被索引</td><td><code class="inline">~/.evoclaw/logs/</code>；你想删就删</td></tr>
-      <tr><td>能复盘上周二的跑吗？</td><td>看厂商保留没</td><td><code class="inline">evoclaw replay /path/to/log.jsonl</code></td></tr>
-      <tr><td>能离线吗？</td><td>不能</td><td>能 —— base_url 指 Ollama / vLLM / llama.cpp</td></tr>
-      <tr><td>能用在涉密内容上吗？</td><td>大概率不能</td><td>能 —— 所有字节在你机器上</td></tr>
-      <tr><td>厂商 pivot 了怎么办？</td><td>重头来过</td><td>skill / memory / config 照常工作</td></tr>
+      <tr><td>我的代码去了哪？</td><td>每次 prompt 都进它们的后端</td><td>只到你选的模型 API；其他全留本地</td></tr>
+      <tr><td>我的密钥去了哪？</td><td>你贴进去就在它们日志里</td><td>vault.json chmod 600；模型只看到占位符</td></tr>
+      <tr><td>我的日志去了哪？</td><td>它们服务器，可被检索</td><td><code class="inline">~/.evoclaw/logs/</code>；你说删就删</td></tr>
+      <tr><td>能回放上周二吗？</td><td>看它们留没留</td><td><code class="inline">evo replay /path/to/log.jsonl</code></td></tr>
+      <tr><td>能离线跑吗？</td><td>不能</td><td>能 —— base_url 指 Ollama / vLLM / llama.cpp</td></tr>
+      <tr><td>能处理合规内容吗？</td><td>大概率不行</td><td>可以 —— 每个字节都在你机器上</td></tr>
+      <tr><td>换厂商？</td><td>从头来</td><td>Skill / 记忆 / 配置照常工作</td></tr>
     </tbody>
   </table>
 </section>
 
-<section id="faq">
-  <h2>常见问题</h2>
-  <details><summary>EvoClaw 是什么，一句话？</summary><p>用 Rust 写的本地优先 agent runtime，每次任务都在学，工作过程在 append-only 日志里可以证明，你输入的密钥永远不会到模型。</p></details>
-  <details><summary>能离线用吗？</summary><p>能。<code class="inline">model.base_url</code> 指 <code class="inline">http://localhost:11434/v1</code>（Ollama）或任意本地 vLLM / llama.cpp 服务，跳过 API key 步骤。redactor 与 skill tree 仍然工作。</p></details>
-  <details><summary>重新 clone 仓库后我的 skill 还在吗？</summary><p>在。状态在 <code class="inline">~/.evoclaw/</code>，不在仓库里。EvoClaw 整体 wipe 重建多少次都行，skill / memory / vault 都不会丢。</p></details>
-  <details><summary>能把 session 日志分享给同事吗？</summary><p>能。每个文本字段在写入前已经 scrub 过，JSONL 默认安全可分享。</p></details>
-  <details><summary>模型把我的密钥从历史里"念"回到日志里怎么办？</summary><p>去模型路上 scrub 一次，回程 scrub 一次。即使模型出于某种原因把已注册的值回显出来，那段 assistant text 在写 JSONL 之前还会被 scrub 一次。</p></details>
-  <details><summary>为什么不用向量数据库？</summary><p>向量检索的成本是"对 query 做 embedding，把 top-k 块送回 context"。能跑，但既不便宜也不易审计。在本地工作负载下，针对类型化记忆层做纯文本 grep，召回率相当但 prompt 成本只有零头。如果你的工作负载不适合，挂一个带向量后端的 MCP server 即可。</p></details>
-  <details><summary>为什么用 Rust？</summary><p>单一静态 binary，无运行时，无 GC 暂停；类型系统能在编译期挡掉一类对长程运行的 agent runtime 真正有杀伤力的 bug。这些都拿到，还不必交 C++ 税。</p></details>
-  <details><summary>怎么切换模型 provider？</summary><p>跑 <code class="inline">evoclaw login</code> 重选，或者直接编辑 <code class="inline">~/.evoclaw/config.toml</code>。EvoClaw 支持 DeepSeek、Kimi、Qwen、OpenAI、OpenRouter、Anthropic、GitHub Copilot、Ollama 以及任意 OpenAI 兼容端点。</p></details>
+<!-- FAQ -->
+<section id="faq" class="faq">
+  <div class="head">
+    <span class="tag">FAQ</span>
+    <h2>常见问题。</h2>
+    <p>速答在这里，长版去文档。</p>
+  </div>
+  <details><summary>EvoClaw 是什么？一句话说。</summary><p>用 Rust 写的本地优先 Agent runtime，每次任务都在学习，工作过程在 append-only JSONL 里完整可证，你打的密钥永远不会进入模型 API。</p></details>
+  <details><summary>能离线跑吗？</summary><p>能。把 <code class="inline">model.base_url</code> 指到 <code class="inline">http://localhost:11434/v1</code>（Ollama），或者任何本地的 vLLM / llama.cpp 服务。跳过 API key 步骤。Redactor 与 skill tree 照常工作。</p></details>
+  <details><summary>重新 clone 仓库后我的 Skill 还在吗？</summary><p>在。状态全部在 <code class="inline">~/.evoclaw/</code>，不在仓库里。EvoClaw 怎么删怎么重装都行，你的 Skill / 记忆 / 保险柜原地不动。</p></details>
+  <details><summary>会话日志能分享给同事吗？</summary><p>能。每个文本字段在落盘前都过了 redactor，JSONL 直接发给同事不需要再人工核一遍。</p></details>
+  <details><summary>模型把我的密钥原样回吐到日志里怎么办？</summary><p>Redactor 是<em>双向</em>的 —— 进模型前脱敏，从模型回来再脱敏一次。哪怕模型把已注册的值原样吐回来，assistant 文本也会在落 JSONL 之前被再次清洗。</p></details>
+  <details><summary>为什么不上向量数据库？</summary><p>向量检索在召回的瞬间就在烧 prompt token。在本机工作流上，对分层记忆（L1 偏好、L2 环境事实、L3 任务记录）做子串匹配的召回率相当，但 prompt 成本只是它的零头。要向量？挂个 MCP 服务器接向量后端就行。</p></details>
+  <details><summary>为什么用 Rust？</summary><p>单一静态二进制，没有运行时，没有 GC 暂停；类型系统能拦下一类长跑 Agent runtime 里特别要命的 bug。我们想要这些好处，又不想付 C++ 的税。</p></details>
+  <details><summary>怎么换模型 provider？</summary><p>跑 <code class="inline">evoclaw login</code> 选另一家，或者直接编辑 <code class="inline">~/.evoclaw/config.toml</code>。EvoClaw 支持 DeepSeek、Kimi、Qwen、OpenAI、OpenRouter、Anthropic、GitHub Copilot、Ollama，以及任何 OpenAI 兼容端点。</p></details>
 </section>
 
+<!-- 资源 -->
 <section id="links">
-  <h2>资源</h2>
-  <ul>
-    <li><a href="https://github.com/DevEloLin/evoclaw">GitHub 仓库 — 代码、测试、Release</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/README.md">中文 README</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/README.md">English README</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/installation.md">安装</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/getting-started.md">快速上手</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/usage.md">使用参考</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/architecture.md">架构总览</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/contributing.md">贡献指南</a></li>
+  <div class="head">
+    <span class="tag">资源</span>
+    <h2>读、fork、贡献。</h2>
+    <p>从你 debug 的同一台机器上，把它发出去。</p>
+  </div>
+  <ul class="res">
+    <li><a href="https://github.com/DevEloLin/evoclaw">GitHub 仓库 — 代码、测试、release</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/version">版本：v0.1.9</a> · <a href="https://github.com/develolin/EvoClawSite/blob/main/version">站点 version</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/README.md">中文 README</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/README.md">English</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/installation.md">安装</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/getting-started.md">入门</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/usage.md">使用手册</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/architecture.md">架构</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/contributing.md">贡献指南</a> · MIT 开源</li>
     <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/agents.md">外部 ACP 代理</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/mcp.md">MCP 服务器</a></li>
-    <li><a href="architecture-zh.html">架构图（中文）</a> · <a href="architecture-en.html">English</a> · <a href="design-zh.html">设计图（中文）</a> · <a href="design-en.html">English</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/version">版本：v0.1.9</a> — 与 <a href="https://github.com/develolin/EvoClawSite/blob/main/version">EvoClawSite/version</a> 严格同步</li>
+    <li><a href="architecture-zh.html">架构图（中文/EN）</a> · <a href="design-zh.html">设计图（中文/EN）</a></li>
   </ul>
+</section>
+
+<!-- CTA -->
+<section class="cta-banner">
+  <h2>今天就开始你的 AI 之旅。</h2>
+  <p>几分钟拥有自己的个人 AI 助手。不用注册，零遥测 —— 一份 Rust 二进制就够了。</p>
+  <div class="row">
+    <a class="primary" href="https://github.com/DevEloLin/evoclaw" target="_blank" rel="noopener">★ 去 GitHub 上手</a>
+    <a class="secondary" href="#quickstart">→ 快速开始</a>
+  </div>
 </section>
 
 </main>
 
 <footer>
-  EvoClaw · MIT 开源 · Rust 1.80+ · <a href="https://github.com/DevEloLin/evoclaw">github.com/DevEloLin/evoclaw</a><br>
-  <span style="color:#5b6172">零遥测 · 无分析 SDK · 你的机器、你的数据。</span>
+  <div class="foot-grid">
+    <div>
+      <div class="foot-brand"><img src="image/EvoClaw2.png" alt=""> EvoClaw</div>
+      <div class="foot-tag">本地优先、自主进化的个人 AI 助手。Rust 写的，开源 MIT。你的机器，你的数据。</div>
+    </div>
+    <div class="foot-col">
+      <h4>产品</h4>
+      <ul>
+        <li><a href="#features">能力</a></li>
+        <li><a href="#integrations">集成</a></li>
+        <li><a href="#how">三步上手</a></li>
+        <li><a href="#quickstart">快速开始</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>资源</h4>
+      <ul>
+        <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/README.md">中文 README</a></li>
+        <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/getting-started.md">入门</a></li>
+        <li><a href="architecture-zh.html">架构图</a></li>
+        <li><a href="design-zh.html">设计图</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>项目</h4>
+      <ul>
+        <li><a href="https://github.com/DevEloLin/evoclaw">GitHub</a></li>
+        <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/contributing.md">贡献指南</a></li>
+        <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/LICENSE">MIT License</a></li>
+        <li><a href="index.html">English</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bot">
+    <div>EvoClaw v0.1.9 · MIT 开源 · Rust 1.80+</div>
+    <div>零遥测 · 零 SDK · 你的机器，你的数据。</div>
+  </div>
 </footer>
 
 </body>
