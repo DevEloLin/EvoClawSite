@@ -39,7 +39,7 @@
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "macOS, Linux, Windows",
   "description": "Local-first self-evolving AI agent runtime in Rust with built-in secret-redaction barrier and standard ACP / MCP protocol interop.",
-  "softwareVersion": "0.0.1",
+  "softwareVersion": "0.1.6",
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -75,7 +75,7 @@
     {"@type":"Question","name":"Which models and providers does EvoClaw support?","acceptedAnswer":{"@type":"Answer","text":"DeepSeek, Kimi, Qwen, OpenAI, OpenRouter, Anthropic, GitHub Copilot (OAuth Device Flow), plus any OpenAI-compatible local endpoint (Ollama, vLLM, llama.cpp). Through ACP, the agent loop can be delegated to Claude Code, Codex, Cursor, or GitHub Copilot CLI."}},
     {"@type":"Question","name":"How is the token cost reduced?","acceptedAnswer":{"@type":"Answer","text":"EvoClaw stacks five techniques: tool-schema fingerprint with 10-turn reset, ephemeral cache markers, head+tail observation truncation, summary working-memory protocol, and tag-level periodic compression every five turns. Together a long task lands at roughly one third of the naive spend; cache_hit_rate stays above 60 percent."}},
     {"@type":"Question","name":"Where is the data stored?","acceptedAnswer":{"@type":"Answer","text":"All state lives under ~/.evoclaw on the user machine: config.toml, logs/{task_id}.jsonl, skills/*.yaml, memory/{L0..L5}.jsonl, secrets/vault.json (chmod 600), agents/*.toml, mcp/*.toml, cost.jsonl. Nothing is uploaded except the model API call."}},
-    {"@type":"Question","name":"Is EvoClaw production ready?","acceptedAnswer":{"@type":"Answer","text":"It is at v0.0.x. The agent loop, learning loop, redactor, ACP and MCP integrations are all wired and unit-tested with 153+ tests passing. Treat it as an early-stage runtime suitable for solo developers and small teams; production deployments should stage carefully."}}
+    {"@type":"Question","name":"Is EvoClaw production ready?","acceptedAnswer":{"@type":"Answer","text":"It is at v0.1.6. The agent loop, learning loop, redactor, ACP and MCP integrations are all wired and unit-tested with 153+ tests passing. Treat it as an early-stage runtime suitable for solo developers and small teams; production deployments should stage carefully."}}
   ]
 }
 </script>
@@ -325,7 +325,7 @@ evoclaw replay
     <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/installation.md">Installation</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/getting-started.md">Getting started</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/usage.md">Usage reference</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/architecture.md">Architecture</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/contributing.md">Contributing</a></li>
     <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/agents.md">External ACP agents</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/mcp.md">MCP servers</a></li>
     <li><a href="architecture-en.html">Architecture diagrams (EN)</a> · <a href="architecture-zh.html">中文</a> · <a href="design-en.html">Design diagrams (EN)</a> · <a href="design-zh.html">中文</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/version">Version: v0.1.5</a> — kept in sync with <a href="https://github.com/develolin/EvoClawSite/blob/main/version">EvoClawSite/version</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/version">Version: v0.1.6</a> — kept in sync with <a href="https://github.com/develolin/EvoClawSite/blob/main/version">EvoClawSite/version</a></li>
   </ul>
 </section>
 
