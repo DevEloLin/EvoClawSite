@@ -50,7 +50,7 @@
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "macOS, Linux, Windows",
   "description": "Local-first self-evolving AI agent runtime in Rust with built-in secret-redaction barrier and standard ACP / MCP protocol interop.",
-  "softwareVersion": "0.2.0",
+  "softwareVersion": "0.3.3",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
   "license": "https://opensource.org/licenses/MIT",
   "programmingLanguage": "Rust",
@@ -82,7 +82,7 @@
     {"@type":"Question","name":"Which models and providers does EvoClaw support?","acceptedAnswer":{"@type":"Answer","text":"DeepSeek, Kimi, Qwen, OpenAI, OpenRouter, Anthropic, GitHub Copilot (OAuth Device Flow), plus any OpenAI-compatible local endpoint (Ollama, vLLM, llama.cpp). Through ACP, the agent loop can be delegated to Claude Code, Codex, Cursor, or GitHub Copilot CLI."}},
     {"@type":"Question","name":"How is the token cost reduced?","acceptedAnswer":{"@type":"Answer","text":"EvoClaw stacks five techniques: tool-schema fingerprint with 10-turn reset, ephemeral cache markers, head+tail observation truncation, summary working-memory protocol, and tag-level periodic compression every five turns. Together a long task lands at roughly one third of the naive spend; cache_hit_rate stays above 60 percent."}},
     {"@type":"Question","name":"Where is the data stored?","acceptedAnswer":{"@type":"Answer","text":"All state lives under ~/.evoclaw on the user machine: config.toml, logs/{task_id}.jsonl, skills/*.yaml, memory/{L0..L5}.jsonl, secrets/vault.json (chmod 600), agents/*.toml, mcp/*.toml, cost.jsonl. Nothing is uploaded except the model API call."}},
-    {"@type":"Question","name":"Is EvoClaw production ready?","acceptedAnswer":{"@type":"Answer","text":"It is at v0.2.0. The agent loop, learning loop, redactor, ACP and MCP integrations are all wired and unit-tested with 153+ tests passing. Treat it as an early-stage runtime suitable for solo developers and small teams; production deployments should stage carefully."}}
+    {"@type":"Question","name":"Is EvoClaw production ready?","acceptedAnswer":{"@type":"Answer","text":"It is at v0.3.3. The agent loop, learning loop, redactor, ACP and MCP integrations are all wired and unit-tested with 153+ tests passing. Treat it as an early-stage runtime suitable for solo developers and small teams; production deployments should stage carefully."}}
   ]
 }
 </script>
@@ -466,7 +466,7 @@
 </nav>
 
 <header class="hero" id="top">
-  <span class="eyebrow"><span class="dot"></span> <b>v0.2.0</b> · 153+ tests green · MIT licensed</span>
+  <span class="eyebrow"><span class="dot"></span> <b>v0.3.3</b> · 153+ tests green · MIT licensed</span>
   <img class="logo" src="image/EvoClaw2.png" alt="EvoClaw" width="148" height="148">
   <h1>Your <span class="accent">self-evolving</span><br>personal AI, ready for you.</h1>
   <p class="lead">EvoClaw runs the agent loop on your laptop. It learns from every task, scrubs secrets before they reach the model API, and cuts long-session token cost by roughly 70 percent. ACP&nbsp;+&nbsp;MCP standard interop. Open source, MIT.</p>
@@ -697,7 +697,7 @@ cargo install --locked --git https://github.com/<span class="k">DevEloLin/evocla
 
 evoclaw                                  <span class="c"># long form</span>
 evo                                      <span class="c"># 3-letter alias — same code path</span></pre>
-      <div class="note">Direct-from-git is the supported path until v0.2.0 publishes to crates.io.</div>
+      <div class="note">Direct-from-git is the supported path until v0.3.3 publishes to crates.io.</div>
     </div>
     <div class="panel" id="qs-p3">
 <pre><span class="c"># Register a secret — value never leaves your machine</span>
@@ -725,38 +725,42 @@ evo replay</pre>
       <div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
       <span class="name">evo · ~/work/myrepo</span>
     </div>
-    <div class="body"><span class="dim">╔══════════════════════════════════════════════════════════════════╗
-║      ███████╗██╗   ██╗ ██████╗  ██████╗██╗      █████╗ ██╗     ║
-║      ██╔════╝██║   ██║██╔═══██╗██╔════╝██║     ██╔══██╗██║     ║
-║      █████╗  ██║   ██║██║   ██║██║     ██║     ███████║██║     ║
-║      ██╔══╝  ╚██╗ ██╔╝██║   ██║██║     ██║     ██╔══██║██║     ║
-║      ███████╗ ╚████╔╝ ╚██████╔╝╚██████╗███████╗██║  ██║███████╗║
-║             local-first · self-evolving · v0.2.0                ║
-╚══════════════════════════════════════════════════════════════════╝</span>
+    <div class="body"><span class="dim">╭─────────────────────────────────────────────────────────────────╮
+│ evoclaw v0.3.3  •  deepseek  •  deepseek-chat                   │
+│ workspace: ~/.evoclaw                      2026-05-04 12:00:00  │
+╰─────────────────────────────────────────────────────────────────╯</span>
 
-<span class="acc">┌─ context ─────────────────────────────────────────────────────┐
-│  home    : ~/.evoclaw                                         │
-│  provider: deepseek    (https://api.deepseek.com/v1)          │
-│  model   : deepseek-chat                                      │
-│  api key : ok · secrets file: ~/.evoclaw/secrets/deepseek.key │
-│  skills  : 12 loaded · 3 ACTIVE                               │
-└───────────────────────────────────────────────────────────────┘</span>
+<span class="acc">╭─ evoclaw ───────────────────────────────────────────────────────╮
+│ auth: ok · ~/.evoclaw/secrets/deepseek.key                      │
+│ vault: 2 secrets · redactor active                              │
+│ skills: 8 learned  ·  mcp: none attached                        │
+│ Type a question or /help for commands · Ctrl-D to exit          │
+╰─────────────────────────────────────────────────────────────────╯</span>
 
-<span class="you">›</span> <span class="you">summarise every Cargo.toml under ~/work, write to cargo-toml-summary.txt</span>
+<span class="dim">╭─ input ─────────────────────────────────────────────────────────╮
+│ ▷ Type your message and press Enter to send  ·  /help           │
+╰─────────────────────────────────────────────────────────────────╯
+Shortcuts: /status  /usage  /help  /clear  /exit  |  Ctrl-C quit</span>
 
-<span class="ai">→</span> planning... <span class="dim">[cache hit · 8/12 tools fingerprinted]</span>
-<span class="ai">→</span> tool call: list_dir(<span class="acc">"~/work"</span>) <span class="dim">+ 12ms</span>
-<span class="ai">→</span> tool call: read_file × 7 <span class="dim">+ 84ms · head/tail truncated</span>
-<span class="ai">→</span> tool call: write_file(cargo-toml-summary.txt, ...) <span class="dim">+ 6ms</span>
-<span class="ai">✓</span> done in <span class="warn">4 turns</span> · <span class="warn">$0.0021</span> · <span class="warn">cache 73%</span>
+<span class="you">╭─ You · 12:00:05 ────────────────────────────────────────────────╮
+│ summarise every Cargo.toml under ~/work/myrepo                  │
+╰─────────────────────────────────────────────────────────────────╯</span>
 
-<span class="dim">=== final ===</span>
-Wrote 7 paths to cargo-toml-summary.txt. Roots: evoclaw, my-other-repo, ...
+<span class="ai">⠹</span><span class="dim"> generating · deepseek · 3.1s · 412 chars</span>
 
-<span class="ai">⚡</span> reflection: distilled new skill <span class="acc">cargo-toml-aggregate</span> → <span class="warn">Draft</span>
-<span class="ai">⚡</span> log saved: <span class="acc">~/.evoclaw/logs/task-20260503T012245.823.jsonl</span>
+<span class="ai">╭─ EvoClaw · deepseek · 12:00:09 · 3.4s · 512tok ────────────────╮
+│ Found 7 Cargo.toml files under ~/work/myrepo.                   │
+│                                                                  │
+│ Written to cargo-toml-summary.txt:                              │
+│   evoclaw 0.3.3, evo-cli, evo-core, evo-tools,                  │
+│   evo-policy, evo-providers, evo-gateway                        │
+│   — all workspace members pinned to v0.3.3.                     │
+╰─────────────────────────────────────────────────────────────────╯</span>
 
-<span class="you">›</span> <span class="dim">_</span></div>
+<span class="dim">╭─ input ─────────────────────────────────────────────────────────╮
+│ ▷ </span><span class="you">_</span><span class="dim">                                                               │
+╰─────────────────────────────────────────────────────────────────╯
+Shortcuts: /status  /usage  /help  /clear  /exit  |  Ctrl-C quit</span></div>
   </div>
 </section>
 
@@ -834,7 +838,7 @@ Wrote 7 paths to cargo-toml-summary.txt. Roots: evoclaw, my-other-repo, ...
   </div>
   <ul class="res">
     <li><a href="https://github.com/DevEloLin/evoclaw">GitHub repository — code, tests, releases</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/version">Version: v0.2.0</a> · <a href="https://github.com/develolin/EvoClawSite/blob/main/version">site/version</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/version">Version: v0.3.3</a> · <a href="https://github.com/develolin/EvoClawSite/blob/main/version">site/version</a></li>
     <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/README.md">README (English)</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/README.md">中文 README</a></li>
     <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/installation.md">Installation</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/getting-started.md">Getting started</a></li>
     <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/usage.md">Usage reference</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/architecture.md">Architecture</a></li>
@@ -891,7 +895,7 @@ Wrote 7 paths to cargo-toml-summary.txt. Roots: evoclaw, my-other-repo, ...
     </div>
   </div>
   <div class="foot-bot">
-    <div>EvoClaw v0.2.0 · MIT licensed · Rust 1.80+</div>
+    <div>EvoClaw v0.3.3 · MIT licensed · Rust 1.80+</div>
     <div>No telemetry · No analytics · Your machine, your data.</div>
   </div>
 </footer>
