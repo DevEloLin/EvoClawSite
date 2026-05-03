@@ -50,7 +50,7 @@
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "macOS, Linux, Windows",
   "description": "Local-first self-evolving AI agent runtime in Rust with built-in secret-redaction barrier and standard ACP / MCP protocol interop.",
-  "softwareVersion": "0.1.9",
+  "softwareVersion": "0.2.0",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
   "license": "https://opensource.org/licenses/MIT",
   "programmingLanguage": "Rust",
@@ -82,7 +82,7 @@
     {"@type":"Question","name":"Which models and providers does EvoClaw support?","acceptedAnswer":{"@type":"Answer","text":"DeepSeek, Kimi, Qwen, OpenAI, OpenRouter, Anthropic, GitHub Copilot (OAuth Device Flow), plus any OpenAI-compatible local endpoint (Ollama, vLLM, llama.cpp). Through ACP, the agent loop can be delegated to Claude Code, Codex, Cursor, or GitHub Copilot CLI."}},
     {"@type":"Question","name":"How is the token cost reduced?","acceptedAnswer":{"@type":"Answer","text":"EvoClaw stacks five techniques: tool-schema fingerprint with 10-turn reset, ephemeral cache markers, head+tail observation truncation, summary working-memory protocol, and tag-level periodic compression every five turns. Together a long task lands at roughly one third of the naive spend; cache_hit_rate stays above 60 percent."}},
     {"@type":"Question","name":"Where is the data stored?","acceptedAnswer":{"@type":"Answer","text":"All state lives under ~/.evoclaw on the user machine: config.toml, logs/{task_id}.jsonl, skills/*.yaml, memory/{L0..L5}.jsonl, secrets/vault.json (chmod 600), agents/*.toml, mcp/*.toml, cost.jsonl. Nothing is uploaded except the model API call."}},
-    {"@type":"Question","name":"Is EvoClaw production ready?","acceptedAnswer":{"@type":"Answer","text":"It is at v0.1.9. The agent loop, learning loop, redactor, ACP and MCP integrations are all wired and unit-tested with 153+ tests passing. Treat it as an early-stage runtime suitable for solo developers and small teams; production deployments should stage carefully."}}
+    {"@type":"Question","name":"Is EvoClaw production ready?","acceptedAnswer":{"@type":"Answer","text":"It is at v0.2.0. The agent loop, learning loop, redactor, ACP and MCP integrations are all wired and unit-tested with 153+ tests passing. Treat it as an early-stage runtime suitable for solo developers and small teams; production deployments should stage carefully."}}
   ]
 }
 </script>
@@ -466,7 +466,7 @@
 </nav>
 
 <header class="hero" id="top">
-  <span class="eyebrow"><span class="dot"></span> <b>v0.1.9</b> · 153+ tests green · MIT licensed</span>
+  <span class="eyebrow"><span class="dot"></span> <b>v0.2.0</b> · 153+ tests green · MIT licensed</span>
   <img class="logo" src="image/EvoClaw2.png" alt="EvoClaw" width="148" height="148">
   <h1>Your <span class="accent">self-evolving</span><br>personal AI, ready for you.</h1>
   <p class="lead">EvoClaw runs the agent loop on your laptop. It learns from every task, scrubs secrets before they reach the model API, and cuts long-session token cost by roughly 70 percent. ACP&nbsp;+&nbsp;MCP standard interop. Open source, MIT.</p>
@@ -731,7 +731,7 @@ evo replay</pre>
 ║      █████╗  ██║   ██║██║   ██║██║     ██║     ███████║██║     ║
 ║      ██╔══╝  ╚██╗ ██╔╝██║   ██║██║     ██║     ██╔══██║██║     ║
 ║      ███████╗ ╚████╔╝ ╚██████╔╝╚██████╗███████╗██║  ██║███████╗║
-║             local-first · self-evolving · v0.1.9                ║
+║             local-first · self-evolving · v0.2.0                ║
 ╚══════════════════════════════════════════════════════════════════╝</span>
 
 <span class="acc">┌─ context ─────────────────────────────────────────────────────┐
@@ -834,7 +834,7 @@ Wrote 7 paths to cargo-toml-summary.txt. Roots: evoclaw, my-other-repo, ...
   </div>
   <ul class="res">
     <li><a href="https://github.com/DevEloLin/evoclaw">GitHub repository — code, tests, releases</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/version">Version: v0.1.9</a> · <a href="https://github.com/develolin/EvoClawSite/blob/main/version">site/version</a></li>
+    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/version">Version: v0.2.0</a> · <a href="https://github.com/develolin/EvoClawSite/blob/main/version">site/version</a></li>
     <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/README.md">README (English)</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/README.md">中文 README</a></li>
     <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/installation.md">Installation</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/getting-started.md">Getting started</a></li>
     <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/usage.md">Usage reference</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/architecture.md">Architecture</a></li>
@@ -891,7 +891,7 @@ Wrote 7 paths to cargo-toml-summary.txt. Roots: evoclaw, my-other-repo, ...
     </div>
   </div>
   <div class="foot-bot">
-    <div>EvoClaw v0.1.9 · MIT licensed · Rust 1.80+</div>
+    <div>EvoClaw v0.2.0 · MIT licensed · Rust 1.80+</div>
     <div>No telemetry · No analytics · Your machine, your data.</div>
   </div>
 </footer>
