@@ -1,501 +1,1554 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<!-- Primary SEO -->
-<title>EvoClaw — Self-evolving Personal AI Assistant in Rust | Local-first, secret-redacted, ACP &amp; MCP, 17 models</title>
-<meta name="description" content="EvoClaw is an open-source self-evolving personal AI assistant you run on your own machine, written in Rust. It learns from every task into a YAML skill tree, scrubs secrets at the runtime boundary so API keys never reach the model, and ships standard ACP / MCP interop with Claude Code, Codex, Cursor, GitHub Copilot, Gemini, Aider, Qwen Code, and 7 MCP servers. 17 model vendors built in, including DeepSeek, Kimi, Qwen, Doubao, Zhipu, Baidu, MiniMax, StepFun, Tencent Hunyuan, OpenAI, Anthropic, Mistral, Groq. ~70% token cost reduction on long sessions. macOS, Linux, Windows.">
-<meta name="keywords" content="EvoClaw, AI agent runtime, local-first agent, self-evolving agent, Rust agent runtime, open source agent runtime, Agent Client Protocol, ACP, Model Context Protocol, MCP, Claude Code CLI, Codex CLI, Cursor CLI, GitHub Copilot CLI, secret redaction, secret vault, API key safety, prompt redaction, JSONL session log, skill tree, EWMA score, reflection distillation, token economy, prompt caching, ephemeral cache, schema fingerprint, head tail truncation, summary working memory, tag level compression, OpenAI compatible, Anthropic, DeepSeek, Kimi, Qwen, OpenRouter, Ollama, vLLM, llama.cpp, on-device AI, privacy-first AI, audit log agent, append-only JSONL, self-hosted AI, agent CLI, REPL, agent shell, autonomous agent, terminal AI assistant, developer productivity, devops AI, SRE AI">
-<meta name="author" content="EvoClaw Contributors">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#070a13">
+        <!-- Primary SEO -->
+        <title>
+            EvoClaw — Self-evolving Personal AI Assistant in Rust | Local-first,
+            secret-redacted, ACP &amp; MCP, 17 models
+        </title>
+        <meta
+            name="description"
+            content="EvoClaw is an open-source self-evolving personal AI assistant you run on your own machine, written in Rust. It learns from every task into a YAML skill tree, scrubs secrets at the runtime boundary so API keys never reach the model, and ships standard ACP / MCP interop with Claude Code, Codex, Cursor, GitHub Copilot, Gemini, Aider, Qwen Code, and 7 MCP servers. 17 model vendors built in, including DeepSeek, Kimi, Qwen, Doubao, Zhipu, Baidu, MiniMax, StepFun, Tencent Hunyuan, OpenAI, Anthropic, Mistral, Groq. ~70% token cost reduction on long sessions. macOS, Linux, Windows."
+        />
+        <meta
+            name="keywords"
+            content="EvoClaw, AI agent runtime, local-first agent, self-evolving agent, Rust agent runtime, open source agent runtime, Agent Client Protocol, ACP, Model Context Protocol, MCP, Claude Code CLI, Codex CLI, Cursor CLI, GitHub Copilot CLI, secret redaction, secret vault, API key safety, prompt redaction, JSONL session log, skill tree, EWMA score, reflection distillation, token economy, prompt caching, ephemeral cache, schema fingerprint, head tail truncation, summary working memory, tag level compression, OpenAI compatible, Anthropic, DeepSeek, Kimi, Qwen, OpenRouter, Ollama, vLLM, llama.cpp, on-device AI, privacy-first AI, audit log agent, append-only JSONL, self-hosted AI, agent CLI, REPL, agent shell, autonomous agent, terminal AI assistant, developer productivity, devops AI, SRE AI"
+        />
+        <meta name="author" content="EvoClaw Contributors" />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="theme-color" content="#070a13" />
 
-<!-- Favicons -->
-<link rel="icon"             type="image/png" sizes="32x32"  href="image/favicon-32.png">
-<link rel="icon"             type="image/png" sizes="64x64"  href="image/favicon-64.png">
-<link rel="icon"             type="image/png" sizes="256x256" href="image/favicon-256.png">
-<link rel="apple-touch-icon" sizes="180x180"                 href="image/apple-touch-icon.png">
-<link rel="shortcut icon"    type="image/png"                 href="image/favicon-64.png">
+        <!-- Favicons -->
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="image/favicon-32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="64x64"
+            href="image/favicon-64.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="256x256"
+            href="image/favicon-256.png"
+        />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="image/apple-touch-icon.png"
+        />
+        <link
+            rel="shortcut icon"
+            type="image/png"
+            href="image/favicon-64.png"
+        />
 
-<link rel="canonical" href="https://develolin.github.io/EvoClawSite/">
-<link rel="alternate" hreflang="en" href="https://develolin.github.io/EvoClawSite/">
-<link rel="alternate" hreflang="zh-CN" href="https://develolin.github.io/EvoClawSite/zh.html">
-<link rel="alternate" hreflang="x-default" href="https://develolin.github.io/EvoClawSite/">
+        <link rel="canonical" href="https://develolin.github.io/EvoClawSite/" />
+        <link
+            rel="alternate"
+            hreflang="en"
+            href="https://develolin.github.io/EvoClawSite/"
+        />
+        <link
+            rel="alternate"
+            hreflang="zh-CN"
+            href="https://develolin.github.io/EvoClawSite/zh.html"
+        />
+        <link
+            rel="alternate"
+            hreflang="x-default"
+            href="https://develolin.github.io/EvoClawSite/"
+        />
 
-<!-- Open Graph -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="EvoClaw — Local-first Self-evolving AI Agent Runtime in Rust">
-<meta property="og:description" content="Open-source agent runtime that keeps your secrets local, learns from every task, and cuts long-session token cost by ~70%. ACP + MCP standard interop. macOS, Linux, Windows.">
-<meta property="og:url" content="https://develolin.github.io/EvoClawSite/">
-<meta property="og:image" content="https://develolin.github.io/EvoClawSite/image/EvoClaw2.png">
-<meta property="og:image:alt" content="EvoClaw — local-first self-evolving AI agent runtime in Rust">
-<meta property="og:site_name" content="EvoClaw">
-<meta property="og:locale" content="en_US">
-<meta property="og:locale:alternate" content="zh_CN">
+        <!-- Open Graph -->
+        <meta property="og:type" content="website" />
+        <meta
+            property="og:title"
+            content="EvoClaw — Local-first Self-evolving AI Agent Runtime in Rust"
+        />
+        <meta
+            property="og:description"
+            content="Open-source agent runtime that keeps your secrets local, learns from every task, and cuts long-session token cost by ~70%. ACP + MCP standard interop. macOS, Linux, Windows."
+        />
+        <meta
+            property="og:url"
+            content="https://develolin.github.io/EvoClawSite/"
+        />
+        <meta
+            property="og:image"
+            content="https://develolin.github.io/EvoClawSite/image/EvoClaw2.png"
+        />
+        <meta
+            property="og:image:alt"
+            content="EvoClaw — local-first self-evolving AI agent runtime in Rust"
+        />
+        <meta property="og:site_name" content="EvoClaw" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:locale:alternate" content="zh_CN" />
 
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="EvoClaw — Local-first AI Agent Runtime (Rust, MIT)">
-<meta name="twitter:image" content="https://develolin.github.io/EvoClawSite/image/EvoClaw2.png">
-<meta name="twitter:description" content="Self-evolving AI agent runtime. Secrets never leave your machine. ACP + MCP interop. Open-source, MIT.">
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+            name="twitter:title"
+            content="EvoClaw — Local-first AI Agent Runtime (Rust, MIT)"
+        />
+        <meta
+            name="twitter:image"
+            content="https://develolin.github.io/EvoClawSite/image/EvoClaw2.png"
+        />
+        <meta
+            name="twitter:description"
+            content="Self-evolving AI agent runtime. Secrets never leave your machine. ACP + MCP interop. Open-source, MIT."
+        />
 
-<!-- JSON-LD: SoftwareApplication -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "EvoClaw",
-  "applicationCategory": "DeveloperApplication",
-  "operatingSystem": "macOS, Linux, Windows",
-  "description": "Local-first self-evolving AI agent runtime in Rust with built-in secret-redaction barrier and standard ACP / MCP protocol interop.",
-  "softwareVersion": "0.3.6",
-  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "license": "https://opensource.org/licenses/MIT",
-  "programmingLanguage": "Rust",
-  "url": "https://develolin.github.io/EvoClawSite/",
-  "downloadUrl": "https://github.com/DevEloLin/evoclaw",
-  "featureList": [
-    "Local-first execution — every byte of state stays on the user's machine",
-    "Self-evolving skill tree with EWMA scoring and Draft / Candidate / Active / Degraded / Deprecated lifecycle",
-    "Secret-redaction barrier — vault-backed substitution plus pattern catch-all (sk-, ghp_, AKIA, JWT)",
-    "Token economy — schema fingerprint, ephemeral cache, summary protocol, head+tail truncation, periodic compression (~70 percent cost cut)",
-    "ACP — Agent Client Protocol delegation to Claude Code, Codex, Cursor, GitHub Copilot",
-    "MCP — Model Context Protocol bridge for filesystem, GitHub, fetch, time, Brave search, Postgres, Slack",
-    "OpenAI-compatible HTTP, native Anthropic, GitHub Copilot OAuth Device Flow",
-    "Append-only JSONL session log; replay any task with evoclaw replay",
-    "P0 to P8 permission ladder, channel cap at P4",
-    "Open source, MIT licensed, Rust 1.80+"
-  ]
-}
-</script>
+        <!-- JSON-LD: SoftwareApplication -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "EvoClaw",
+                "applicationCategory": "DeveloperApplication",
+                "operatingSystem": "macOS, Linux, Windows",
+                "description": "Local-first self-evolving AI agent runtime in Rust with built-in secret-redaction barrier and standard ACP / MCP protocol interop.",
+                "softwareVersion": "0.3.6",
+                "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                },
+                "license": "https://opensource.org/licenses/MIT",
+                "programmingLanguage": "Rust",
+                "url": "https://develolin.github.io/EvoClawSite/",
+                "downloadUrl": "https://github.com/DevEloLin/evoclaw",
+                "featureList": [
+                    "Local-first execution — every byte of state stays on the user's machine",
+                    "Self-evolving skill tree with EWMA scoring and Draft / Candidate / Active / Degraded / Deprecated lifecycle",
+                    "Secret-redaction barrier — vault-backed substitution plus pattern catch-all (sk-, ghp_, AKIA, JWT)",
+                    "Token economy — schema fingerprint, ephemeral cache, summary protocol, head+tail truncation, periodic compression (~70 percent cost cut)",
+                    "ACP — Agent Client Protocol delegation to Claude Code, Codex, Cursor, GitHub Copilot",
+                    "MCP — Model Context Protocol bridge for filesystem, GitHub, fetch, time, Brave search, Postgres, Slack",
+                    "OpenAI-compatible HTTP, native Anthropic, GitHub Copilot OAuth Device Flow",
+                    "Append-only JSONL session log; replay any task with evoclaw replay",
+                    "P0 to P8 permission ladder, channel cap at P4",
+                    "Open source, MIT licensed, Rust 1.80+"
+                ]
+            }
+        </script>
 
-<!-- JSON-LD: FAQPage -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {"@type":"Question","name":"What is EvoClaw?","acceptedAnswer":{"@type":"Answer","text":"EvoClaw is an open-source local-first AI agent runtime written in Rust. It runs entirely on your machine, learns from every task into a YAML skill tree, scrubs secrets at the runtime boundary so they never reach the model API, and supports standard ACP and MCP protocols for interop with upstream coding CLIs and third-party tools."}},
-    {"@type":"Question","name":"Does EvoClaw send my code or secrets to a cloud?","acceptedAnswer":{"@type":"Answer","text":"No. The only outbound call is to the model API you configure (which can be local Ollama or any OpenAI-compatible endpoint). Before that call, every text payload is scrubbed by the redactor: vault-registered values become dollar-curly SECRET name placeholders, and unregistered credential shapes (sk-*, ghp_*, AKIA*, eyJ JWT, high-entropy strings) become REDACTED kind fingerprint markers."}},
-    {"@type":"Question","name":"Which models and providers does EvoClaw support?","acceptedAnswer":{"@type":"Answer","text":"DeepSeek, Kimi, Qwen, OpenAI, OpenRouter, Anthropic, GitHub Copilot (OAuth Device Flow), plus any OpenAI-compatible local endpoint (Ollama, vLLM, llama.cpp). Through ACP, the agent loop can be delegated to Claude Code, Codex, Cursor, or GitHub Copilot CLI."}},
-    {"@type":"Question","name":"How is the token cost reduced?","acceptedAnswer":{"@type":"Answer","text":"EvoClaw stacks five techniques: tool-schema fingerprint with 10-turn reset, ephemeral cache markers, head+tail observation truncation, summary working-memory protocol, and tag-level periodic compression every five turns. Together a long task lands at roughly one third of the naive spend; cache_hit_rate stays above 60 percent."}},
-    {"@type":"Question","name":"Where is the data stored?","acceptedAnswer":{"@type":"Answer","text":"All state lives under ~/.evoclaw on the user machine: config.toml, logs/{task_id}.jsonl, skills/*.yaml, memory/{L0..L5}.jsonl, secrets/vault.json (chmod 600), agents/*.toml, mcp/*.toml, cost.jsonl. Nothing is uploaded except the model API call."}},
-    {"@type":"Question","name":"Is EvoClaw production ready?","acceptedAnswer":{"@type":"Answer","text":"It is at v0.3.6. The agent loop, learning loop, redactor, ACP and MCP integrations are all wired and unit-tested with 153+ tests passing. Treat it as an early-stage runtime suitable for solo developers and small teams; production deployments should stage carefully."}}
-  ]
-}
-</script>
+        <!-- JSON-LD: FAQPage -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "What is EvoClaw?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "EvoClaw is an open-source local-first AI agent runtime written in Rust. It runs entirely on your machine, learns from every task into a YAML skill tree, scrubs secrets at the runtime boundary so they never reach the model API, and supports standard ACP and MCP protocols for interop with upstream coding CLIs and third-party tools."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Does EvoClaw send my code or secrets to a cloud?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "No. The only outbound call is to the model API you configure (which can be local Ollama or any OpenAI-compatible endpoint). Before that call, every text payload is scrubbed by the redactor: vault-registered values become dollar-curly SECRET name placeholders, and unregistered credential shapes (sk-*, ghp_*, AKIA*, eyJ JWT, high-entropy strings) become REDACTED kind fingerprint markers."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Which models and providers does EvoClaw support?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "DeepSeek, Kimi, Qwen, OpenAI, OpenRouter, Anthropic, GitHub Copilot (OAuth Device Flow), plus any OpenAI-compatible local endpoint (Ollama, vLLM, llama.cpp). Through ACP, the agent loop can be delegated to Claude Code, Codex, Cursor, or GitHub Copilot CLI."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How is the token cost reduced?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "EvoClaw stacks five techniques: tool-schema fingerprint with 10-turn reset, ephemeral cache markers, head+tail observation truncation, summary working-memory protocol, and tag-level periodic compression every five turns. Together a long task lands at roughly one third of the naive spend; cache_hit_rate stays above 60 percent."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Where is the data stored?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "All state lives under ~/.evoclaw on the user machine: config.toml, logs/{task_id}.jsonl, skills/*.yaml, memory/{L0..L5}.jsonl, secrets/vault.json (chmod 600), agents/*.toml, mcp/*.toml, cost.jsonl. Nothing is uploaded except the model API call."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Is EvoClaw production ready?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "It is at v0.3.6. The agent loop, learning loop, redactor, ACP and MCP integrations are all wired and unit-tested with 153+ tests passing. Treat it as an early-stage runtime suitable for solo developers and small teams; production deployments should stage carefully."
+                        }
+                    }
+                ]
+            }
+        </script>
 
-<style>
-  :root{
-    --bg:#070a13;
-    --bg-alt:#0a0e1a;
-    --bg-soft:#0e131f;
-    --surface:#10151f;
-    --surface-2:#171c28;
-    --line:#1f2638;
-    --line-soft:#171d2a;
-    --line-strong:#2c3448;
-    --text:#e8edf6;
-    --text-2:#c8d0dd;
-    --muted:#8a93a8;
-    --muted-2:#5d6577;
-    --accent:#5b9eff;
-    --accent-2:#14d4b1;
-    --accent-soft:rgba(91,158,255,.10);
-    --accent-soft-2:rgba(91,158,255,.22);
-    --good:#22c55e;
-    --bad:#f87171;
-    --warn:#fbbf24;
-    --shadow-sm:0 1px 2px rgba(0,0,0,.5);
-    --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 36px -12px rgba(0,0,0,.55);
-    --shadow-lg:0 2px 4px rgba(0,0,0,.5),0 26px 64px -16px rgba(91,158,255,.16);
-    --shadow-glow:0 0 0 1px var(--accent-soft-2),0 14px 36px -10px rgba(91,158,255,.32);
-    --radius:14px;
-    --radius-sm:10px;
-    --radius-lg:18px;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Inter","Helvetica Neue","PingFang SC","Hiragino Sans GB",sans-serif;
-    line-height:1.65;-webkit-font-smoothing:antialiased;
-    background-image:
-      radial-gradient(1200px 600px at 50% -240px, rgba(91,158,255,.10), transparent 70%),
-      radial-gradient(900px 500px at 100% 0%, rgba(20,212,177,.06), transparent 70%),
-      linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 56px 56px, 56px 56px;
-    background-attachment: fixed}
-  ::selection{background:var(--accent);color:#06080f}
-  a{color:var(--accent);text-decoration:none}
-  a:hover{color:#9bc4ff;text-decoration:underline}
+        <style>
+            :root {
+                --bg: #070a13;
+                --bg-alt: #0a0e1a;
+                --bg-soft: #0e131f;
+                --surface: #10151f;
+                --surface-2: #171c28;
+                --line: #1f2638;
+                --line-soft: #171d2a;
+                --line-strong: #2c3448;
+                --text: #e8edf6;
+                --text-2: #c8d0dd;
+                --muted: #8a93a8;
+                --muted-2: #5d6577;
+                --accent: #5b9eff;
+                --accent-2: #14d4b1;
+                --accent-soft: rgba(91, 158, 255, 0.1);
+                --accent-soft-2: rgba(91, 158, 255, 0.22);
+                --good: #22c55e;
+                --bad: #f87171;
+                --warn: #fbbf24;
+                --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+                --shadow:
+                    0 1px 2px rgba(0, 0, 0, 0.5),
+                    0 14px 36px -12px rgba(0, 0, 0, 0.55);
+                --shadow-lg:
+                    0 2px 4px rgba(0, 0, 0, 0.5),
+                    0 26px 64px -16px rgba(91, 158, 255, 0.16);
+                --shadow-glow:
+                    0 0 0 1px var(--accent-soft-2),
+                    0 14px 36px -10px rgba(91, 158, 255, 0.32);
+                --radius: 14px;
+                --radius-sm: 10px;
+                --radius-lg: 18px;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                background: var(--bg);
+                color: var(--text);
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+                    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB",
+                    sans-serif;
+                line-height: 1.65;
+                -webkit-font-smoothing: antialiased;
+                background-image:
+                    radial-gradient(
+                        1200px 600px at 50% -240px,
+                        rgba(91, 158, 255, 0.1),
+                        transparent 70%
+                    ),
+                    radial-gradient(
+                        900px 500px at 100% 0%,
+                        rgba(20, 212, 177, 0.06),
+                        transparent 70%
+                    ),
+                    linear-gradient(
+                        rgba(255, 255, 255, 0.018) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(255, 255, 255, 0.018) 1px,
+                        transparent 1px
+                    );
+                background-size:
+                    100% 100%,
+                    100% 100%,
+                    56px 56px,
+                    56px 56px;
+                background-attachment: fixed;
+            }
+            ::selection {
+                background: var(--accent);
+                color: #06080f;
+            }
+            a {
+                color: var(--accent);
+                text-decoration: none;
+            }
+            a:hover {
+                color: #9bc4ff;
+                text-decoration: underline;
+            }
 
-  /* ========= Top nav ========= */
-  .nav{position:sticky;top:0;z-index:50;
-       background:rgba(7,10,19,.72);backdrop-filter:blur(14px) saturate(160%);
-       border-bottom:1px solid var(--line-soft);
-       padding:14px clamp(20px,5vw,40px);
-       display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:14px}
-  .nav .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.1px;color:var(--text)}
-  .nav .brand img{width:28px;height:28px;border-radius:8px}
-  .nav .center{display:flex;align-items:center;gap:26px}
-  .nav .center a{color:var(--muted);font-weight:500;transition:color .15s}
-  .nav .center a:hover{color:var(--text);text-decoration:none}
-  .nav .right{display:flex;align-items:center;gap:10px}
-  .nav .lang{padding:6px 12px;color:var(--muted);border-radius:999px;font-weight:500}
-  .nav .lang:hover{background:var(--surface);text-decoration:none;color:var(--text)}
-  .nav .gh{display:inline-flex;align-items:center;gap:7px;
-       padding:8px 16px;background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#06080f;border-radius:999px;
-       font-weight:700;letter-spacing:-.1px;transition:all .15s;
-       box-shadow:0 6px 18px -6px rgba(91,158,255,.5)}
-  .nav .gh:hover{transform:translateY(-1px);text-decoration:none;
-       box-shadow:0 10px 24px -6px rgba(91,158,255,.6)}
-  .nav-toggle{display:none;background:transparent;border:1px solid var(--line);border-radius:8px;
-       width:40px;height:36px;font-size:18px;cursor:pointer;color:var(--text)}
-  @media(max-width:920px){
-    .nav .center{display:none}
-    .nav .center.open{display:flex;position:absolute;left:14px;right:14px;top:64px;
-         flex-direction:column;align-items:flex-start;gap:14px;
-         background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-         padding:18px;box-shadow:var(--shadow)}
-    .nav-toggle{display:inline-flex;align-items:center;justify-content:center}
-  }
+            /* ========= Top nav ========= */
+            .nav {
+                position: sticky;
+                top: 0;
+                z-index: 50;
+                background: rgba(7, 10, 19, 0.72);
+                backdrop-filter: blur(14px) saturate(160%);
+                border-bottom: 1px solid var(--line-soft);
+                padding: 14px clamp(20px, 5vw, 40px);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 24px;
+                font-size: 14px;
+            }
+            .nav .brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 700;
+                letter-spacing: -0.1px;
+                color: var(--text);
+            }
+            .nav .brand img {
+                width: 28px;
+                height: 28px;
+                border-radius: 8px;
+            }
+            .nav .center {
+                display: flex;
+                align-items: center;
+                gap: 26px;
+            }
+            .nav .center a {
+                color: var(--muted);
+                font-weight: 500;
+                transition: color 0.15s;
+            }
+            .nav .center a:hover {
+                color: var(--text);
+                text-decoration: none;
+            }
+            .nav .right {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .nav .lang {
+                padding: 6px 12px;
+                color: var(--muted);
+                border-radius: 999px;
+                font-weight: 500;
+            }
+            .nav .lang:hover {
+                background: var(--surface);
+                text-decoration: none;
+                color: var(--text);
+            }
+            .nav .gh {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                padding: 8px 16px;
+                background: linear-gradient(
+                    120deg,
+                    var(--accent),
+                    var(--accent-2)
+                );
+                color: #06080f;
+                border-radius: 999px;
+                font-weight: 700;
+                letter-spacing: -0.1px;
+                transition: all 0.15s;
+                box-shadow: 0 6px 18px -6px rgba(91, 158, 255, 0.5);
+            }
+            .nav .gh:hover {
+                transform: translateY(-1px);
+                text-decoration: none;
+                box-shadow: 0 10px 24px -6px rgba(91, 158, 255, 0.6);
+            }
+            .nav-toggle {
+                display: none;
+                background: transparent;
+                border: 1px solid var(--line);
+                border-radius: 8px;
+                width: 40px;
+                height: 36px;
+                font-size: 18px;
+                cursor: pointer;
+                color: var(--text);
+            }
+            @media (max-width: 920px) {
+                .nav .center {
+                    display: none;
+                }
+                .nav .center.open {
+                    display: flex;
+                    position: absolute;
+                    left: 14px;
+                    right: 14px;
+                    top: 64px;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 14px;
+                    background: var(--surface);
+                    border: 1px solid var(--line);
+                    border-radius: var(--radius);
+                    padding: 18px;
+                    box-shadow: var(--shadow);
+                }
+                .nav-toggle {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
 
-  /* ========= Hero ========= */
-  .hero{position:relative;text-align:center;padding:96px clamp(20px,5vw,40px) 72px;overflow:hidden}
-  .hero::before{content:"";position:absolute;inset:-30% 0 auto 0;height:780px;
-       background:
-         radial-gradient(680px 380px at 50% 0%, rgba(91,158,255,.22), transparent 60%),
-         radial-gradient(560px 320px at 78% 18%, rgba(20,212,177,.14), transparent 60%),
-         radial-gradient(560px 320px at 22% 22%, rgba(157,123,255,.10), transparent 60%);
-       pointer-events:none;z-index:0}
-  .hero > *{position:relative;z-index:1}
-  .hero .eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;
-       padding:6px 14px;background:rgba(16,21,31,.7);border:1px solid var(--line);border-radius:999px;
-       color:var(--muted);font-size:12.5px;font-weight:500;
-       backdrop-filter:blur(8px);box-shadow:var(--shadow-sm)}
-  .hero .eyebrow b{color:var(--text);font-weight:700}
-  .hero .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--good);
-       box-shadow:0 0 0 4px rgba(34,197,94,.18)}
-  .hero .logo{display:block;width:148px;max-width:38vw;margin:0 auto 28px;
-       filter:drop-shadow(0 18px 56px rgba(91,158,255,.35))}
-  .hero h1{font-size:clamp(36px,5.5vw,62px);margin:0 0 20px;line-height:1.05;
-       letter-spacing:-1.1px;font-weight:700;color:var(--text)}
-  .hero h1 .accent{background:linear-gradient(120deg,var(--accent) 0%,var(--accent-2) 100%);
-       -webkit-background-clip:text;background-clip:text;color:transparent;
-       text-shadow:0 0 40px rgba(91,158,255,.25)}
-  .hero .lead{color:var(--muted);font-size:clamp(16px,1.7vw,19px);max-width:720px;
-       margin:0 auto 36px;line-height:1.55}
-  .hero .cta{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-bottom:24px}
-  .hero .cta a{display:inline-flex;align-items:center;gap:8px;
-       padding:14px 26px;border-radius:12px;font-weight:700;font-size:15.5px;letter-spacing:-.1px;
-       transition:all .15s}
-  .hero .cta .primary{background:linear-gradient(120deg,var(--accent),var(--accent-2));
-       color:#06080f;border:1px solid transparent;
-       box-shadow:0 10px 28px -10px rgba(91,158,255,.6)}
-  .hero .cta .primary:hover{transform:translateY(-1px);text-decoration:none;
-       box-shadow:0 14px 36px -8px rgba(91,158,255,.7)}
-  .hero .cta .secondary{background:rgba(16,21,31,.7);border:1px solid var(--line);color:var(--text);
-       backdrop-filter:blur(8px);box-shadow:var(--shadow-sm)}
-  .hero .cta .secondary:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
-  .hero .pills{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;font-size:13px;
-       color:var(--muted);margin-top:18px}
-  .hero .pills span{display:inline-flex;align-items:center;gap:6px;
-       padding:6px 14px;background:rgba(16,21,31,.5);border:1px solid var(--line);border-radius:999px;
-       backdrop-filter:blur(8px)}
-  .hero .pills .glyph{font-size:13px;color:var(--accent)}
+            /* ========= Hero ========= */
+            .hero {
+                position: relative;
+                text-align: center;
+                padding: 96px clamp(20px, 5vw, 40px) 72px;
+                overflow: hidden;
+            }
+            .hero::before {
+                content: "";
+                position: absolute;
+                inset: -30% 0 auto 0;
+                height: 780px;
+                background:
+                    radial-gradient(
+                        680px 380px at 50% 0%,
+                        rgba(91, 158, 255, 0.22),
+                        transparent 60%
+                    ),
+                    radial-gradient(
+                        560px 320px at 78% 18%,
+                        rgba(20, 212, 177, 0.14),
+                        transparent 60%
+                    ),
+                    radial-gradient(
+                        560px 320px at 22% 22%,
+                        rgba(157, 123, 255, 0.1),
+                        transparent 60%
+                    );
+                pointer-events: none;
+                z-index: 0;
+            }
+            .hero > * {
+                position: relative;
+                z-index: 1;
+            }
+            .hero .eyebrow {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 24px;
+                padding: 6px 14px;
+                background: rgba(16, 21, 31, 0.7);
+                border: 1px solid var(--line);
+                border-radius: 999px;
+                color: var(--muted);
+                font-size: 12.5px;
+                font-weight: 500;
+                backdrop-filter: blur(8px);
+                box-shadow: var(--shadow-sm);
+            }
+            .hero .eyebrow b {
+                color: var(--text);
+                font-weight: 700;
+            }
+            .hero .eyebrow .dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: var(--good);
+                box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+            }
+            .hero .logo {
+                display: block;
+                width: 148px;
+                max-width: 38vw;
+                margin: 0 auto 28px;
+                filter: drop-shadow(0 18px 56px rgba(91, 158, 255, 0.35));
+            }
+            .hero h1 {
+                font-size: clamp(36px, 5.5vw, 62px);
+                margin: 0 0 20px;
+                line-height: 1.05;
+                letter-spacing: -1.1px;
+                font-weight: 700;
+                color: var(--text);
+            }
+            .hero h1 .accent {
+                background: linear-gradient(
+                    120deg,
+                    var(--accent) 0%,
+                    var(--accent-2) 100%
+                );
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+                text-shadow: 0 0 40px rgba(91, 158, 255, 0.25);
+            }
+            .hero .lead {
+                color: var(--muted);
+                font-size: clamp(16px, 1.7vw, 19px);
+                max-width: 720px;
+                margin: 0 auto 36px;
+                line-height: 1.55;
+            }
+            .hero .cta {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-bottom: 24px;
+            }
+            .hero .cta a {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 14px 26px;
+                border-radius: 12px;
+                font-weight: 700;
+                font-size: 15.5px;
+                letter-spacing: -0.1px;
+                transition: all 0.15s;
+            }
+            .hero .cta .primary {
+                background: linear-gradient(
+                    120deg,
+                    var(--accent),
+                    var(--accent-2)
+                );
+                color: #06080f;
+                border: 1px solid transparent;
+                box-shadow: 0 10px 28px -10px rgba(91, 158, 255, 0.6);
+            }
+            .hero .cta .primary:hover {
+                transform: translateY(-1px);
+                text-decoration: none;
+                box-shadow: 0 14px 36px -8px rgba(91, 158, 255, 0.7);
+            }
+            .hero .cta .secondary {
+                background: rgba(16, 21, 31, 0.7);
+                border: 1px solid var(--line);
+                color: var(--text);
+                backdrop-filter: blur(8px);
+                box-shadow: var(--shadow-sm);
+            }
+            .hero .cta .secondary:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                text-decoration: none;
+            }
+            .hero .pills {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 8px;
+                font-size: 13px;
+                color: var(--muted);
+                margin-top: 18px;
+            }
+            .hero .pills span {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 14px;
+                background: rgba(16, 21, 31, 0.5);
+                border: 1px solid var(--line);
+                border-radius: 999px;
+                backdrop-filter: blur(8px);
+            }
+            .hero .pills .glyph {
+                font-size: 13px;
+                color: var(--accent);
+            }
 
-  /* ========= Layout ========= */
-  main{max-width:1180px;margin:0 auto;padding:8px clamp(20px,4vw,40px) 60px}
-  section{margin:96px 0;scroll-margin-top:84px}
-  section .head{margin-bottom:42px;text-align:center}
-  section .head .tag{display:inline-block;color:var(--accent);font-size:13px;font-weight:700;
-       letter-spacing:1.6px;text-transform:uppercase;margin-bottom:14px}
-  section .head h2{font-size:clamp(28px,3.6vw,42px);margin:0 0 14px;line-height:1.1;
-       letter-spacing:-.6px;font-weight:700;color:var(--text)}
-  section .head h2 .accent{background:linear-gradient(120deg,var(--accent),var(--accent-2));
-       -webkit-background-clip:text;background-clip:text;color:transparent}
-  section .head p{color:var(--muted);font-size:16px;max-width:680px;margin:0 auto;line-height:1.55}
+            /* ========= Layout ========= */
+            main {
+                max-width: 1180px;
+                margin: 0 auto;
+                padding: 8px clamp(20px, 4vw, 40px) 60px;
+            }
+            section {
+                margin: 96px 0;
+                scroll-margin-top: 84px;
+            }
+            section .head {
+                margin-bottom: 42px;
+                text-align: center;
+            }
+            section .head .tag {
+                display: inline-block;
+                color: var(--accent);
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 1.6px;
+                text-transform: uppercase;
+                margin-bottom: 14px;
+            }
+            section .head h2 {
+                font-size: clamp(28px, 3.6vw, 42px);
+                margin: 0 0 14px;
+                line-height: 1.1;
+                letter-spacing: -0.6px;
+                font-weight: 700;
+                color: var(--text);
+            }
+            section .head h2 .accent {
+                background: linear-gradient(
+                    120deg,
+                    var(--accent),
+                    var(--accent-2)
+                );
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+            }
+            section .head p {
+                color: var(--muted);
+                font-size: 16px;
+                max-width: 680px;
+                margin: 0 auto;
+                line-height: 1.55;
+            }
 
-  /* ========= Without/With ========= */
-  .compare{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  @media(max-width:880px){.compare{grid-template-columns:1fr}}
-  .compare .col{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);
-       padding:0;overflow:hidden;box-shadow:var(--shadow-sm)}
-  .compare .col header{padding:20px 24px;border-bottom:1px solid var(--line-soft);
-       display:flex;align-items:center;gap:10px;font-weight:700;font-size:13px;letter-spacing:1.4px;text-transform:uppercase}
-  .compare .col.bad header{color:var(--bad)}
-  .compare .col.good header{color:var(--good)}
-  .compare .col header .glyph{display:inline-flex;align-items:center;justify-content:center;
-       width:24px;height:24px;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:0;text-transform:none}
-  .compare .col.bad header .glyph{background:rgba(248,113,113,.14);color:var(--bad)}
-  .compare .col.good header .glyph{background:rgba(34,197,94,.14);color:var(--good)}
-  .compare .col .body{padding:22px 24px}
-  .compare .terminal{background:#06080f;color:#c9d1d9;border-radius:10px;padding:18px 20px;
-       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.8px;line-height:1.65;
-       overflow:auto;border:1px solid #161b27}
-  .compare .terminal .prompt{color:#5d6577;user-select:none}
-  .compare .terminal .cmd{color:#e8edf6}
-  .compare .terminal .err{color:#ff8a82}
-  .compare .terminal .ok{color:#7ee787}
-  .compare .terminal .dim{color:#5d6577}
-  .compare .checks{list-style:none;margin:0;padding:0}
-  .compare .checks li{display:flex;align-items:flex-start;gap:14px;padding:12px 0;
-       border-bottom:1px solid var(--line-soft);font-size:14.5px;color:var(--text-2)}
-  .compare .checks li:last-child{border-bottom:none}
-  .compare .checks li::before{content:"✓";flex:0 0 22px;height:22px;border-radius:50%;
-       background:rgba(34,197,94,.16);color:var(--good);font-weight:700;font-size:13px;
-       display:inline-flex;align-items:center;justify-content:center;margin-top:1px}
-  .compare .checks li b{color:var(--text);font-weight:600}
+            /* ========= Without/With ========= */
+            .compare {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 18px;
+            }
+            @media (max-width: 880px) {
+                .compare {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .compare .col {
+                background: var(--surface);
+                border: 1px solid var(--line);
+                border-radius: var(--radius-lg);
+                padding: 0;
+                overflow: hidden;
+                box-shadow: var(--shadow-sm);
+            }
+            .compare .col header {
+                padding: 20px 24px;
+                border-bottom: 1px solid var(--line-soft);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 700;
+                font-size: 13px;
+                letter-spacing: 1.4px;
+                text-transform: uppercase;
+            }
+            .compare .col.bad header {
+                color: var(--bad);
+            }
+            .compare .col.good header {
+                color: var(--good);
+            }
+            .compare .col header .glyph {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 0;
+                text-transform: none;
+            }
+            .compare .col.bad header .glyph {
+                background: rgba(248, 113, 113, 0.14);
+                color: var(--bad);
+            }
+            .compare .col.good header .glyph {
+                background: rgba(34, 197, 94, 0.14);
+                color: var(--good);
+            }
+            .compare .col .body {
+                padding: 22px 24px;
+            }
+            .compare .terminal {
+                background: #06080f;
+                color: #c9d1d9;
+                border-radius: 10px;
+                padding: 18px 20px;
+                font-family:
+                    ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+                font-size: 12.8px;
+                line-height: 1.65;
+                overflow: auto;
+                border: 1px solid #161b27;
+            }
+            .compare .terminal .prompt {
+                color: #5d6577;
+                user-select: none;
+            }
+            .compare .terminal .cmd {
+                color: #e8edf6;
+            }
+            .compare .terminal .err {
+                color: #ff8a82;
+            }
+            .compare .terminal .ok {
+                color: #7ee787;
+            }
+            .compare .terminal .dim {
+                color: #5d6577;
+            }
+            .compare .checks {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            .compare .checks li {
+                display: flex;
+                align-items: flex-start;
+                gap: 14px;
+                padding: 12px 0;
+                border-bottom: 1px solid var(--line-soft);
+                font-size: 14.5px;
+                color: var(--text-2);
+            }
+            .compare .checks li:last-child {
+                border-bottom: none;
+            }
+            .compare .checks li::before {
+                content: "✓";
+                flex: 0 0 22px;
+                height: 22px;
+                border-radius: 50%;
+                background: rgba(34, 197, 94, 0.16);
+                color: var(--good);
+                font-weight: 700;
+                font-size: 13px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 1px;
+            }
+            .compare .checks li b {
+                color: var(--text);
+                font-weight: 600;
+            }
 
-  /* ========= Cards ========= */
-  .grid{display:grid;gap:16px}
-  .grid-4{grid-template-columns:repeat(4,1fr)}
-  .grid-3{grid-template-columns:repeat(3,1fr)}
-  .grid-2{grid-template-columns:1fr 1fr}
-  @media(max-width:1080px){.grid-4{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:680px){.grid-4{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-       padding:22px;transition:transform .18s,border-color .18s,box-shadow .18s;position:relative}
-  .card:hover{border-color:var(--accent-soft-2);transform:translateY(-2px);box-shadow:var(--shadow-glow)}
-  .card .icon{display:inline-flex;align-items:center;justify-content:center;
-       width:42px;height:42px;border-radius:11px;
-       background:var(--accent-soft);color:var(--accent);font-size:20px;margin-bottom:14px;
-       border:1px solid var(--accent-soft-2)}
-  .card h3{margin:0 0 8px;font-size:16px;font-weight:600;color:var(--text);letter-spacing:-.2px}
-  .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
+            /* ========= Cards ========= */
+            .grid {
+                display: grid;
+                gap: 16px;
+            }
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+            @media (max-width: 1080px) {
+                .grid-4 {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            @media (max-width: 680px) {
+                .grid-4 {
+                    grid-template-columns: 1fr;
+                }
+                .grid-3 {
+                    grid-template-columns: 1fr;
+                }
+                .grid-2 {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .card {
+                background: var(--surface);
+                border: 1px solid var(--line);
+                border-radius: var(--radius);
+                padding: 22px;
+                transition:
+                    transform 0.18s,
+                    border-color 0.18s,
+                    box-shadow 0.18s;
+                position: relative;
+            }
+            .card:hover {
+                border-color: var(--accent-soft-2);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-glow);
+            }
+            .card .icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 42px;
+                height: 42px;
+                border-radius: 11px;
+                background: var(--accent-soft);
+                color: var(--accent);
+                font-size: 20px;
+                margin-bottom: 14px;
+                border: 1px solid var(--accent-soft-2);
+            }
+            .card h3 {
+                margin: 0 0 8px;
+                font-size: 16px;
+                font-weight: 600;
+                color: var(--text);
+                letter-spacing: -0.2px;
+            }
+            .card p {
+                margin: 0;
+                color: var(--muted);
+                font-size: 14px;
+                line-height: 1.6;
+            }
 
-  /* === Diagram link cards (no nested anchors) === */
-  .link-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-       transition:transform .18s,border-color .18s,box-shadow .18s;
-       display:flex;flex-direction:column;overflow:hidden}
-  .link-card:hover{border-color:var(--accent-soft-2);transform:translateY(-2px);box-shadow:var(--shadow-glow)}
-  .link-card .card-link{display:block;padding:22px 22px 14px;color:inherit;text-decoration:none;flex:1}
-  .link-card .card-link:hover{text-decoration:none}
-  .link-card .card-link .icon{display:inline-flex;align-items:center;justify-content:center;
-       width:42px;height:42px;border-radius:11px;
-       background:var(--accent-soft);color:var(--accent);font-size:20px;margin-bottom:14px;
-       border:1px solid var(--accent-soft-2)}
-  .link-card .card-link h3{margin:0 0 8px;font-size:17px;font-weight:600;color:var(--accent);letter-spacing:-.2px}
-  .link-card .card-link p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
-  .link-card .alt{display:block;padding:0 22px 18px;font-size:12.5px;color:var(--muted-2)}
-  .link-card .alt a{color:var(--accent);font-weight:500}
+            /* === Diagram link cards (no nested anchors) === */
+            .link-card {
+                background: var(--surface);
+                border: 1px solid var(--line);
+                border-radius: var(--radius);
+                transition:
+                    transform 0.18s,
+                    border-color 0.18s,
+                    box-shadow 0.18s;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .link-card:hover {
+                border-color: var(--accent-soft-2);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-glow);
+            }
+            .link-card .card-link {
+                display: block;
+                padding: 22px 22px 14px;
+                color: inherit;
+                text-decoration: none;
+                flex: 1;
+            }
+            .link-card .card-link:hover {
+                text-decoration: none;
+            }
+            .link-card .card-link .icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 42px;
+                height: 42px;
+                border-radius: 11px;
+                background: var(--accent-soft);
+                color: var(--accent);
+                font-size: 20px;
+                margin-bottom: 14px;
+                border: 1px solid var(--accent-soft-2);
+            }
+            .link-card .card-link h3 {
+                margin: 0 0 8px;
+                font-size: 17px;
+                font-weight: 600;
+                color: var(--accent);
+                letter-spacing: -0.2px;
+            }
+            .link-card .card-link p {
+                margin: 0;
+                color: var(--muted);
+                font-size: 14px;
+                line-height: 1.6;
+            }
+            .link-card .alt {
+                display: block;
+                padding: 0 22px 18px;
+                font-size: 12.5px;
+                color: var(--muted-2);
+            }
+            .link-card .alt a {
+                color: var(--accent);
+                font-weight: 500;
+            }
 
-  /* ========= How it works ========= */
-  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:step}
-  @media(max-width:880px){.steps{grid-template-columns:1fr}}
-  .step{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-       padding:26px 24px 24px;box-shadow:var(--shadow-sm);counter-increment:step;
-       transition:border-color .18s,box-shadow .18s}
-  .step:hover{border-color:var(--accent-soft-2);box-shadow:var(--shadow-glow)}
-  .step::before{content:counter(step,decimal-leading-zero);
-       position:absolute;top:18px;right:22px;
-       font-family:ui-monospace,Menlo,Consolas,monospace;
-       font-size:42px;font-weight:700;line-height:1;letter-spacing:-1.5px;
-       background:linear-gradient(120deg,var(--accent),var(--accent-2));
-       -webkit-background-clip:text;background-clip:text;color:transparent;opacity:.45}
-  .step h3{margin:0 0 10px;font-size:18px;font-weight:600;letter-spacing:-.2px;color:var(--text)}
-  .step p{margin:0 0 14px;color:var(--muted);font-size:14.5px}
-  .step pre{margin:0}
+            /* ========= How it works ========= */
+            .steps {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 18px;
+                counter-reset: step;
+            }
+            @media (max-width: 880px) {
+                .steps {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .step {
+                position: relative;
+                background: var(--surface);
+                border: 1px solid var(--line);
+                border-radius: var(--radius);
+                padding: 26px 24px 24px;
+                box-shadow: var(--shadow-sm);
+                counter-increment: step;
+                transition:
+                    border-color 0.18s,
+                    box-shadow 0.18s;
+            }
+            .step:hover {
+                border-color: var(--accent-soft-2);
+                box-shadow: var(--shadow-glow);
+            }
+            .step::before {
+                content: counter(step, decimal-leading-zero);
+                position: absolute;
+                top: 18px;
+                right: 22px;
+                font-family: ui-monospace, Menlo, Consolas, monospace;
+                font-size: 42px;
+                font-weight: 700;
+                line-height: 1;
+                letter-spacing: -1.5px;
+                background: linear-gradient(
+                    120deg,
+                    var(--accent),
+                    var(--accent-2)
+                );
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+                opacity: 0.45;
+            }
+            .step h3 {
+                margin: 0 0 10px;
+                font-size: 18px;
+                font-weight: 600;
+                letter-spacing: -0.2px;
+                color: var(--text);
+            }
+            .step p {
+                margin: 0 0 14px;
+                color: var(--muted);
+                font-size: 14.5px;
+            }
+            .step pre {
+                margin: 0;
+            }
 
-  /* ========= Code blocks ========= */
-  pre,code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-  pre{background:#06080f;color:#d8dde8;border:1px solid #161b27;border-radius:10px;
-       padding:14px 16px;overflow:auto;font-size:12.8px;line-height:1.7}
-  pre .c{color:#5d6577}
-  pre .k{color:#79c0ff}
-  pre .s{color:#a5d6ff}
-  pre .ok{color:#7ee787}
-  code.inline{background:var(--surface-2);padding:2px 7px;border-radius:5px;font-size:13px;
-       border:1px solid var(--line);color:var(--accent)}
+            /* ========= Code blocks ========= */
+            pre,
+            code {
+                font-family:
+                    ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            }
+            pre {
+                background: #06080f;
+                color: #d8dde8;
+                border: 1px solid #161b27;
+                border-radius: 10px;
+                padding: 14px 16px;
+                overflow: auto;
+                font-size: 12.8px;
+                line-height: 1.7;
+            }
+            pre .c {
+                color: #5d6577;
+            }
+            pre .k {
+                color: #79c0ff;
+            }
+            pre .s {
+                color: #a5d6ff;
+            }
+            pre .ok {
+                color: #7ee787;
+            }
+            code.inline {
+                background: var(--surface-2);
+                padding: 2px 7px;
+                border-radius: 5px;
+                font-size: 13px;
+                border: 1px solid var(--line);
+                color: var(--accent);
+            }
 
-  /* ========= Tabs ========= */
-  .tabs{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);
-       overflow:hidden;box-shadow:var(--shadow-sm)}
-  .tabs input[type=radio]{position:absolute;opacity:0;pointer-events:none}
-  .tabs .labels{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line);
-       background:var(--surface-2)}
-  .tabs label{padding:14px 20px;font-size:14px;font-weight:600;color:var(--muted);
-       cursor:pointer;user-select:none;transition:color .15s,background .15s;
-       border-right:1px solid var(--line-soft)}
-  .tabs label:hover{color:var(--text)}
-  .tabs label .count{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;
-       font-size:11px;background:rgba(91,158,255,.10);color:var(--accent);font-weight:600}
-  .tabs .panel{display:none;padding:22px 24px}
-  .tabs #t1:checked ~ .labels label[for=t1],
-  .tabs #t2:checked ~ .labels label[for=t2],
-  .tabs #t3:checked ~ .labels label[for=t3],
-  .tabs #t4:checked ~ .labels label[for=t4]{color:var(--accent);background:var(--surface);
-       box-shadow:inset 0 -2px 0 var(--accent)}
-  .tabs #t1:checked ~ #p1,
-  .tabs #t2:checked ~ #p2,
-  .tabs #t3:checked ~ #p3,
-  .tabs #t4:checked ~ #p4{display:block}
-  .pill-grid{display:flex;flex-wrap:wrap;gap:10px}
-  .pill{display:inline-flex;align-items:center;gap:7px;
-       padding:8px 14px;background:rgba(255,255,255,.03);
-       border:1px solid var(--line);border-radius:999px;
-       font-size:13.5px;color:var(--text-2);transition:all .15s;font-weight:500}
-  .pill:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
-  .pill.muted{color:var(--muted-2);background:transparent}
-  .pill .badge{font-size:10.5px;color:var(--muted);font-weight:600;letter-spacing:.4px;text-transform:uppercase;margin-left:4px}
+            /* ========= Tabs ========= */
+            .tabs {
+                background: var(--surface);
+                border: 1px solid var(--line);
+                border-radius: var(--radius-lg);
+                overflow: hidden;
+                box-shadow: var(--shadow-sm);
+            }
+            .tabs input[type="radio"] {
+                position: absolute;
+                opacity: 0;
+                pointer-events: none;
+            }
+            .tabs .labels {
+                display: flex;
+                flex-wrap: wrap;
+                border-bottom: 1px solid var(--line);
+                background: var(--surface-2);
+            }
+            .tabs label {
+                padding: 14px 20px;
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--muted);
+                cursor: pointer;
+                user-select: none;
+                transition:
+                    color 0.15s,
+                    background 0.15s;
+                border-right: 1px solid var(--line-soft);
+            }
+            .tabs label:hover {
+                color: var(--text);
+            }
+            .tabs label .count {
+                display: inline-block;
+                margin-left: 6px;
+                padding: 2px 8px;
+                border-radius: 999px;
+                font-size: 11px;
+                background: rgba(91, 158, 255, 0.1);
+                color: var(--accent);
+                font-weight: 600;
+            }
+            .tabs .panel {
+                display: none;
+                padding: 22px 24px;
+            }
+            .tabs #t1:checked ~ .labels label[for="t1"],
+            .tabs #t2:checked ~ .labels label[for="t2"],
+            .tabs #t3:checked ~ .labels label[for="t3"],
+            .tabs #t4:checked ~ .labels label[for="t4"] {
+                color: var(--accent);
+                background: var(--surface);
+                box-shadow: inset 0 -2px 0 var(--accent);
+            }
+            .tabs #t1:checked ~ #p1,
+            .tabs #t2:checked ~ #p2,
+            .tabs #t3:checked ~ #p3,
+            .tabs #t4:checked ~ #p4 {
+                display: block;
+            }
+            .pill-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                padding: 8px 14px;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid var(--line);
+                border-radius: 999px;
+                font-size: 13.5px;
+                color: var(--text-2);
+                transition: all 0.15s;
+                font-weight: 500;
+            }
+            .pill:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: var(--accent-soft);
+            }
+            .pill.muted {
+                color: var(--muted-2);
+                background: transparent;
+            }
+            .pill .badge {
+                font-size: 10.5px;
+                color: var(--muted);
+                font-weight: 600;
+                letter-spacing: 0.4px;
+                text-transform: uppercase;
+                margin-left: 4px;
+            }
 
-  /* ========= Quickstart tabs ========= */
-  .qs-tabs .panel{padding:0}
-  .qs-tabs .panel pre{margin:0;border:none;border-radius:0}
-  .qs-tabs .panel .note{padding:14px 20px;border-top:1px solid var(--line);
-       color:var(--muted);font-size:13.5px;background:var(--surface-2)}
+            /* ========= Quickstart tabs ========= */
+            .qs-tabs .panel {
+                padding: 0;
+            }
+            .qs-tabs .panel pre {
+                margin: 0;
+                border: none;
+                border-radius: 0;
+            }
+            .qs-tabs .panel .note {
+                padding: 14px 20px;
+                border-top: 1px solid var(--line);
+                color: var(--muted);
+                font-size: 13.5px;
+                background: var(--surface-2);
+            }
 
-  /* ========= REPL demo ========= */
-  .repl{background:#06080f;border:1px solid #161b27;border-radius:var(--radius-lg);
-       overflow:hidden;box-shadow:var(--shadow-lg)}
-  .repl .titlebar{display:flex;align-items:center;gap:10px;padding:12px 16px;
-       background:#0c1019;border-bottom:1px solid #161b27}
-  .repl .titlebar .dots{display:flex;gap:6px}
-  .repl .titlebar .dots span{width:11px;height:11px;border-radius:50%}
-  .repl .titlebar .dots .r{background:#f85149}
-  .repl .titlebar .dots .y{background:#d29922}
-  .repl .titlebar .dots .g{background:#3fb950}
-  .repl .titlebar .name{color:#8b949e;font-size:12.5px;
-       font-family:ui-monospace,Menlo,Consolas,monospace;margin-left:10px}
-  .repl .body{padding:18px 22px;color:#c9d1d9;
-       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-       font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
-  .repl .body .you{color:#79c0ff}
-  .repl .body .ai{color:#7ee787}
-  .repl .body .dim{color:#5d6577}
-  .repl .body .warn{color:#fbbf24}
-  .repl .body .acc{color:#a5d6ff}
+            /* ========= REPL demo ========= */
+            .repl {
+                background: #06080f;
+                border: 1px solid #161b27;
+                border-radius: var(--radius-lg);
+                overflow: hidden;
+                box-shadow: var(--shadow-lg);
+            }
+            .repl .titlebar {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 16px;
+                background: #0c1019;
+                border-bottom: 1px solid #161b27;
+            }
+            .repl .titlebar .dots {
+                display: flex;
+                gap: 6px;
+            }
+            .repl .titlebar .dots span {
+                width: 11px;
+                height: 11px;
+                border-radius: 50%;
+            }
+            .repl .titlebar .dots .r {
+                background: #f85149;
+            }
+            .repl .titlebar .dots .y {
+                background: #d29922;
+            }
+            .repl .titlebar .dots .g {
+                background: #3fb950;
+            }
+            .repl .titlebar .name {
+                color: #8b949e;
+                font-size: 12.5px;
+                font-family: ui-monospace, Menlo, Consolas, monospace;
+                margin-left: 10px;
+            }
+            .repl .body {
+                padding: 18px 22px;
+                color: #c9d1d9;
+                font-family:
+                    ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+                font-size: 13px;
+                line-height: 1.7;
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+            .repl .body .you {
+                color: #79c0ff;
+            }
+            .repl .body .ai {
+                color: #7ee787;
+            }
+            .repl .body .dim {
+                color: #5d6577;
+            }
+            .repl .body .warn {
+                color: #fbbf24;
+            }
+            .repl .body .acc {
+                color: #a5d6ff;
+            }
 
-  /* ========= Compare table ========= */
-  table{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px;
-       background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);
-       overflow:hidden;box-shadow:var(--shadow-sm)}
-  thead th{background:var(--surface-2);color:var(--muted);font-weight:600;
-       padding:14px 18px;text-align:left;border-bottom:1px solid var(--line);
-       font-size:12.5px;text-transform:uppercase;letter-spacing:.6px}
-  tbody td{padding:14px 18px;border-bottom:1px solid var(--line-soft);vertical-align:top;color:var(--text-2)}
-  tbody tr:last-child td{border-bottom:none}
-  tbody td:first-child{color:var(--text);font-weight:500;width:30%}
-  tbody td:nth-child(2){color:var(--muted)}
-  tbody td:nth-child(3){color:var(--text-2)}
+            /* ========= Compare table ========= */
+            table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                font-size: 14.5px;
+                background: var(--surface);
+                border: 1px solid var(--line);
+                border-radius: var(--radius-lg);
+                overflow: hidden;
+                box-shadow: var(--shadow-sm);
+            }
+            thead th {
+                background: var(--surface-2);
+                color: var(--muted);
+                font-weight: 600;
+                padding: 14px 18px;
+                text-align: left;
+                border-bottom: 1px solid var(--line);
+                font-size: 12.5px;
+                text-transform: uppercase;
+                letter-spacing: 0.6px;
+            }
+            tbody td {
+                padding: 14px 18px;
+                border-bottom: 1px solid var(--line-soft);
+                vertical-align: top;
+                color: var(--text-2);
+            }
+            tbody tr:last-child td {
+                border-bottom: none;
+            }
+            tbody td:first-child {
+                color: var(--text);
+                font-weight: 500;
+                width: 30%;
+            }
+            tbody td:nth-child(2) {
+                color: var(--muted);
+            }
+            tbody td:nth-child(3) {
+                color: var(--text-2);
+            }
 
-  /* ========= FAQ ========= */
-  .faq details{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-       padding:18px 22px;margin:10px 0;box-shadow:var(--shadow-sm);transition:border-color .15s}
-  .faq details[open]{border-color:var(--accent-soft-2)}
-  .faq summary{cursor:pointer;font-weight:600;color:var(--text);font-size:15.5px;list-style:none;
-       display:flex;justify-content:space-between;align-items:center;gap:14px;letter-spacing:-.1px}
-  .faq summary::-webkit-details-marker{display:none}
-  .faq summary::after{content:"+";color:var(--muted);font-size:22px;font-weight:300;line-height:1;
-       transition:transform .18s}
-  .faq details[open] summary::after{content:"−";color:var(--accent)}
-  .faq details p{color:var(--muted);margin:14px 0 0;font-size:14.5px;line-height:1.6}
-  .faq details p code.inline{background:var(--surface-2);border-color:var(--line)}
+            /* ========= FAQ ========= */
+            .faq details {
+                background: var(--surface);
+                border: 1px solid var(--line);
+                border-radius: var(--radius);
+                padding: 18px 22px;
+                margin: 10px 0;
+                box-shadow: var(--shadow-sm);
+                transition: border-color 0.15s;
+            }
+            .faq details[open] {
+                border-color: var(--accent-soft-2);
+            }
+            .faq summary {
+                cursor: pointer;
+                font-weight: 600;
+                color: var(--text);
+                font-size: 15.5px;
+                list-style: none;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 14px;
+                letter-spacing: -0.1px;
+            }
+            .faq summary::-webkit-details-marker {
+                display: none;
+            }
+            .faq summary::after {
+                content: "+";
+                color: var(--muted);
+                font-size: 22px;
+                font-weight: 300;
+                line-height: 1;
+                transition: transform 0.18s;
+            }
+            .faq details[open] summary::after {
+                content: "−";
+                color: var(--accent);
+            }
+            .faq details p {
+                color: var(--muted);
+                margin: 14px 0 0;
+                font-size: 14.5px;
+                line-height: 1.6;
+            }
+            .faq details p code.inline {
+                background: var(--surface-2);
+                border-color: var(--line);
+            }
 
-  /* ========= Resources ========= */
-  .res{display:grid;grid-template-columns:1fr 1fr;gap:8px 32px;list-style:none;padding:0;margin:0}
-  @media(max-width:720px){.res{grid-template-columns:1fr}}
-  .res li{padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:14.5px;color:var(--muted)}
-  .res li a{color:var(--text)}
-  .res li a:hover{color:var(--accent)}
+            /* ========= Resources ========= */
+            .res {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px 32px;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            @media (max-width: 720px) {
+                .res {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .res li {
+                padding: 10px 0;
+                border-bottom: 1px solid var(--line-soft);
+                font-size: 14.5px;
+                color: var(--muted);
+            }
+            .res li a {
+                color: var(--text);
+            }
+            .res li a:hover {
+                color: var(--accent);
+            }
 
-  /* ========= CTA banner ========= */
-  .cta-banner{margin:96px 0 0;padding:64px clamp(28px,5vw,72px);
-       background:
-         radial-gradient(800px 400px at 80% -50%, rgba(91,158,255,.4), transparent 60%),
-         radial-gradient(700px 360px at 0% 110%, rgba(20,212,177,.22), transparent 60%),
-         linear-gradient(135deg,#0a0e1a 0%,#11192a 100%);
-       color:#fff;border:1px solid var(--line);
-       border-radius:var(--radius-lg);text-align:center;position:relative;overflow:hidden}
-  .cta-banner > *{position:relative;z-index:1}
-  .cta-banner h2{font-size:clamp(26px,3vw,36px);margin:0 0 12px;letter-spacing:-.5px;line-height:1.15;color:#fff}
-  .cta-banner p{color:#a5b3c7;font-size:16px;max-width:560px;margin:0 auto 26px}
-  .cta-banner .row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px}
-  .cta-banner a{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;
-       border-radius:12px;font-weight:700;font-size:15.5px;transition:all .15s}
-  .cta-banner .primary{background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#06080f;
-       box-shadow:0 10px 28px -10px rgba(91,158,255,.6)}
-  .cta-banner .primary:hover{transform:translateY(-1px);text-decoration:none;
-       box-shadow:0 14px 36px -8px rgba(91,158,255,.7)}
-  .cta-banner .secondary{border:1px solid rgba(255,255,255,.18);color:#fff;background:rgba(255,255,255,.04)}
-  .cta-banner .secondary:hover{border-color:#fff;text-decoration:none}
+            /* ========= CTA banner ========= */
+            .cta-banner {
+                margin: 96px 0 0;
+                padding: 64px clamp(28px, 5vw, 72px);
+                background:
+                    radial-gradient(
+                        800px 400px at 80% -50%,
+                        rgba(91, 158, 255, 0.4),
+                        transparent 60%
+                    ),
+                    radial-gradient(
+                        700px 360px at 0% 110%,
+                        rgba(20, 212, 177, 0.22),
+                        transparent 60%
+                    ),
+                    linear-gradient(135deg, #0a0e1a 0%, #11192a 100%);
+                color: #fff;
+                border: 1px solid var(--line);
+                border-radius: var(--radius-lg);
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            .cta-banner > * {
+                position: relative;
+                z-index: 1;
+            }
+            .cta-banner h2 {
+                font-size: clamp(26px, 3vw, 36px);
+                margin: 0 0 12px;
+                letter-spacing: -0.5px;
+                line-height: 1.15;
+                color: #fff;
+            }
+            .cta-banner p {
+                color: #a5b3c7;
+                font-size: 16px;
+                max-width: 560px;
+                margin: 0 auto 26px;
+            }
+            .cta-banner .row {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .cta-banner a {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 14px 26px;
+                border-radius: 12px;
+                font-weight: 700;
+                font-size: 15.5px;
+                transition: all 0.15s;
+            }
+            .cta-banner .primary {
+                background: linear-gradient(
+                    120deg,
+                    var(--accent),
+                    var(--accent-2)
+                );
+                color: #06080f;
+                box-shadow: 0 10px 28px -10px rgba(91, 158, 255, 0.6);
+            }
+            .cta-banner .primary:hover {
+                transform: translateY(-1px);
+                text-decoration: none;
+                box-shadow: 0 14px 36px -8px rgba(91, 158, 255, 0.7);
+            }
+            .cta-banner .secondary {
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                color: #fff;
+                background: rgba(255, 255, 255, 0.04);
+            }
+            .cta-banner .secondary:hover {
+                border-color: #fff;
+                text-decoration: none;
+            }
 
-  /* ========= Footer ========= */
-  footer{padding:72px clamp(20px,4vw,40px) 56px;border-top:1px solid var(--line);margin-top:96px;
-       background:var(--bg-alt)}
-  .foot-grid{max-width:1180px;margin:0 auto;
-       display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
-  @media(max-width:880px){.foot-grid{grid-template-columns:1fr 1fr}}
-  @media(max-width:520px){.foot-grid{grid-template-columns:1fr}}
-  .foot-brand{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-weight:700;color:var(--text)}
-  .foot-brand img{width:30px;height:30px;border-radius:8px}
-  .foot-tag{color:var(--muted);font-size:13.5px;line-height:1.65;max-width:300px}
-  .foot-col h4{font-size:12.5px;font-weight:700;color:var(--text);margin:0 0 14px;
-       letter-spacing:1px;text-transform:uppercase}
-  .foot-col ul{list-style:none;margin:0;padding:0}
-  .foot-col li{margin:8px 0;font-size:14px}
-  .foot-col li a{color:var(--muted)}
-  .foot-col li a:hover{color:var(--accent)}
-  .foot-bot{max-width:1180px;margin:42px auto 0;padding-top:20px;border-top:1px solid var(--line-soft);
-       display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
-       color:var(--muted-2);font-size:12.5px}
-</style>
-</head>
-<body>
+            /* ========= Footer ========= */
+            footer {
+                padding: 72px clamp(20px, 4vw, 40px) 56px;
+                border-top: 1px solid var(--line);
+                margin-top: 96px;
+                background: var(--bg-alt);
+            }
+            .foot-grid {
+                max-width: 1180px;
+                margin: 0 auto;
+                display: grid;
+                grid-template-columns: 1.4fr 1fr 1fr 1fr;
+                gap: 32px;
+            }
+            @media (max-width: 880px) {
+                .foot-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+            @media (max-width: 520px) {
+                .foot-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .foot-brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 14px;
+                font-weight: 700;
+                color: var(--text);
+            }
+            .foot-brand img {
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
+            }
+            .foot-tag {
+                color: var(--muted);
+                font-size: 13.5px;
+                line-height: 1.65;
+                max-width: 300px;
+            }
+            .foot-col h4 {
+                font-size: 12.5px;
+                font-weight: 700;
+                color: var(--text);
+                margin: 0 0 14px;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+            .foot-col ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            .foot-col li {
+                margin: 8px 0;
+                font-size: 14px;
+            }
+            .foot-col li a {
+                color: var(--muted);
+            }
+            .foot-col li a:hover {
+                color: var(--accent);
+            }
+            .foot-bot {
+                max-width: 1180px;
+                margin: 42px auto 0;
+                padding-top: 20px;
+                border-top: 1px solid var(--line-soft);
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 8px;
+                color: var(--muted-2);
+                font-size: 12.5px;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="nav">
+            <a class="brand" href="#top">
+                <img src="image/EvoClaw2.png" alt="EvoClaw" />
+                <span>EvoClaw</span>
+            </a>
+            <button
+                class="nav-toggle"
+                onclick="
+                    document
+                        .querySelector('.nav .center')
+                        .classList.toggle('open')
+                "
+                aria-label="Menu"
+            >
+                ≡
+            </button>
+            <div class="center">
+                <a href="#features">Features</a>
+                <a href="#how">How it works</a>
+                <a href="#integrations">Integrations</a>
+                <a href="#diagrams">Diagrams</a>
+                <a href="#quickstart">Quickstart</a>
+                <a href="#faq">FAQ</a>
+            </div>
+            <div class="right">
+                <a class="lang" href="zh.html">中文</a>
+                <a
+                    class="gh"
+                    href="https://github.com/DevEloLin/evoclaw"
+                    target="_blank"
+                    rel="noopener"
+                    >★ GitHub</a
+                >
+            </div>
+        </nav>
 
-<nav class="nav">
-  <a class="brand" href="#top">
-    <img src="image/EvoClaw2.png" alt="EvoClaw">
-    <span>EvoClaw</span>
-  </a>
-  <button class="nav-toggle" onclick="document.querySelector('.nav .center').classList.toggle('open')" aria-label="Menu">≡</button>
-  <div class="center">
-    <a href="#features">Features</a>
-    <a href="#how">How it works</a>
-    <a href="#integrations">Integrations</a>
-    <a href="#diagrams">Diagrams</a>
-    <a href="#quickstart">Quickstart</a>
-    <a href="#faq">FAQ</a>
-  </div>
-  <div class="right">
-    <a class="lang" href="zh.html">中文</a>
-    <a class="gh" href="https://github.com/DevEloLin/evoclaw" target="_blank" rel="noopener">★ GitHub</a>
-  </div>
-</nav>
+        <header class="hero" id="top">
+            <span class="eyebrow"
+                ><span class="dot"></span> <b>v0.3.6</b> · 153+ tests green ·
+                MIT licensed</span
+            >
+            <img
+                class="logo"
+                src="image/EvoClaw2.png"
+                alt="EvoClaw"
+                width="148"
+                height="148"
+            />
+            <h1>
+                Your <span class="accent">self-evolving</span><br />personal AI,
+                ready for you.
+            </h1>
+            <p class="lead">
+                EvoClaw runs the agent loop on your laptop. It learns from every
+                task, scrubs secrets before they reach the model API, and cuts
+                long-session token cost by roughly 70 percent.
+                ACP&nbsp;+&nbsp;MCP standard interop. Open source, MIT.
+            </p>
+            <div class="cta">
+                <a class="primary" href="#quickstart">→ Run EvoClaw now</a>
+                <a
+                    class="secondary"
+                    href="https://github.com/DevEloLin/evoclaw"
+                    target="_blank"
+                    rel="noopener"
+                    >★ Star on GitHub</a
+                >
+            </div>
+            <div class="pills">
+                <span><span class="glyph">⚙</span> Rust 1.80+</span>
+                <span
+                    ><span class="glyph">▣</span> macOS · Linux · Windows</span
+                >
+                <span><span class="glyph">∎</span> ~8K LOC core</span>
+                <span><span class="glyph">⛔</span> Zero telemetry</span>
+            </div>
+        </header>
 
-<header class="hero" id="top">
-  <span class="eyebrow"><span class="dot"></span> <b>v0.3.6</b> · 153+ tests green · MIT licensed</span>
-  <img class="logo" src="image/EvoClaw2.png" alt="EvoClaw" width="148" height="148">
-  <h1>Your <span class="accent">self-evolving</span><br>personal AI, ready for you.</h1>
-  <p class="lead">EvoClaw runs the agent loop on your laptop. It learns from every task, scrubs secrets before they reach the model API, and cuts long-session token cost by roughly 70 percent. ACP&nbsp;+&nbsp;MCP standard interop. Open source, MIT.</p>
-  <div class="cta">
-    <a class="primary" href="#quickstart">→ Run EvoClaw now</a>
-    <a class="secondary" href="https://github.com/DevEloLin/evoclaw" target="_blank" rel="noopener">★ Star on GitHub</a>
-  </div>
-  <div class="pills">
-    <span><span class="glyph">⚙</span> Rust 1.80+</span>
-    <span><span class="glyph">▣</span> macOS · Linux · Windows</span>
-    <span><span class="glyph">∎</span> ~8K LOC core</span>
-    <span><span class="glyph">⛔</span> Zero telemetry</span>
-  </div>
-</header>
-
-<main>
-
-<!-- =============== Without / With =============== -->
-<section id="without-with">
-  <div class="head">
-    <span class="tag">The contrast</span>
-    <h2>Without EvoClaw vs. <span class="accent">With EvoClaw</span></h2>
-    <p>Hosted-SaaS agents log every prompt, store your code on their servers, and lose the trail when you ask "what happened last Tuesday." EvoClaw rewires that loop on your machine.</p>
-  </div>
-  <div class="compare">
-    <div class="col bad">
-      <header><span class="glyph">✕</span> Without EvoClaw</header>
-      <div class="body">
-<pre class="terminal"><span class="prompt">$</span> <span class="cmd">cat ~/.bashrc | grep -i token | curl -X POST acme-ai.com/chat</span>
+        <main>
+            <!-- =============== Without / With =============== -->
+            <section id="without-with">
+                <div class="head">
+                    <span class="tag">The contrast</span>
+                    <h2>
+                        Without EvoClaw vs.
+                        <span class="accent">With EvoClaw</span>
+                    </h2>
+                    <p>
+                        Hosted-SaaS agents log every prompt, store your code on
+                        their servers, and lose the trail when you ask "what
+                        happened last Tuesday." EvoClaw rewires that loop on
+                        your machine.
+                    </p>
+                </div>
+                <div class="compare">
+                    <div class="col bad">
+                        <header>
+                            <span class="glyph">✕</span> Without EvoClaw
+                        </header>
+                        <div class="body">
+                            <pre
+                                class="terminal"
+                            ><span class="prompt">$</span> <span class="cmd">cat ~/.bashrc | grep -i token | curl -X POST acme-ai.com/chat</span>
 <span class="err">!! prompt logged to acme-ai.com:443 — every byte indexed</span>
 <span class="prompt">$</span> <span class="cmd">acme-ai chat "fix the prod migration"</span>
 <span class="err">!! GHP_xxxx leaked in tool args; shows in vendor dashboard</span>
@@ -504,208 +1557,403 @@
 <span class="prompt">$</span> <span class="cmd">acme-ai run --offline</span>
 <span class="err">ERROR: backend unreachable, account paused</span>
 <span class="dim">14 prompts ago · cost: $1.84 · cache: who knows</span></pre>
-      </div>
-    </div>
-    <div class="col good">
-      <header><span class="glyph">✓</span> With EvoClaw</header>
-      <div class="body">
-        <ul class="checks">
-          <li><div><b>Local first.</b> The only outbound packet is to the model API you chose. Everything else stays under <code class="inline">~/.evoclaw/</code>.</div></li>
-          <li><div><b>Secrets never reach the model.</b> Two-layer redactor scrubs prompts, tool args, and assistant text at six boundary points.</div></li>
-          <li><div><b>Replay any session.</b> Append-only JSONL per task. <code class="inline">evo replay</code> rehydrates last Tuesday's run, byte for byte.</div></li>
-          <li><div><b>Offline mode.</b> Point <code class="inline">model.base_url</code> at Ollama, vLLM, or llama.cpp — same loop, no internet.</div></li>
-          <li><div><b>~⅓ of the naive token spend.</b> Five stacked tricks; cache-hit-rate stays above 60 percent.</div></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
+                        </div>
+                    </div>
+                    <div class="col good">
+                        <header>
+                            <span class="glyph">✓</span> With EvoClaw
+                        </header>
+                        <div class="body">
+                            <ul class="checks">
+                                <li>
+                                    <div>
+                                        <b>Local first.</b> The only outbound
+                                        packet is to the model API you chose.
+                                        Everything else stays under
+                                        <code class="inline">~/.evoclaw/</code>.
+                                    </div>
+                                </li>
+                                <li>
+                                    <div>
+                                        <b>Secrets never reach the model.</b>
+                                        Two-layer redactor scrubs prompts, tool
+                                        args, and assistant text at six boundary
+                                        points.
+                                    </div>
+                                </li>
+                                <li>
+                                    <div>
+                                        <b>Replay any session.</b> Append-only
+                                        JSONL per task.
+                                        <code class="inline">evo replay</code>
+                                        rehydrates last Tuesday's run, byte for
+                                        byte.
+                                    </div>
+                                </li>
+                                <li>
+                                    <div>
+                                        <b>Offline mode.</b> Point
+                                        <code class="inline"
+                                            >model.base_url</code
+                                        >
+                                        at Ollama, vLLM, or llama.cpp — same
+                                        loop, no internet.
+                                    </div>
+                                </li>
+                                <li>
+                                    <div>
+                                        <b>~⅓ of the naive token spend.</b> Five
+                                        stacked tricks; cache-hit-rate stays
+                                        above 60 percent.
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-<!-- =============== Capability cards (9) =============== -->
-<section id="features">
-  <div class="head">
-    <span class="tag">What's in the box</span>
-    <h2>Nine load-bearing capabilities.</h2>
-    <p>Every primitive that makes a long-running agent runtime trustworthy enough to leave unattended on your real machine.</p>
-  </div>
-  <div class="grid grid-4">
-    <div class="card">
-      <div class="icon">🌳</div>
-      <h3>Self-evolving Skill Tree</h3>
-      <p>YAML skills with five-state EWMA lifecycle (Draft → Candidate → Active → Degraded → Deprecated). Active skills feed the next planner round.</p>
-    </div>
-    <div class="card">
-      <div class="icon">🔒</div>
-      <h3>Secret-redaction barrier</h3>
-      <p>Vault-registered values become <code class="inline">${SECRET:NAME}</code>; unregistered shapes become <code class="inline">[REDACTED:kind:fp]</code>. Idempotent at six boundary points.</p>
-    </div>
-    <div class="card">
-      <div class="icon">📉</div>
-      <h3>Token economy</h3>
-      <p>Schema fingerprint, ephemeral cache, summary protocol, head+tail truncation, periodic compression. Long task ≈ ⅓ of naive spend.</p>
-    </div>
-    <div class="card">
-      <div class="icon">🧠</div>
-      <h3>Layered memory L0–L5</h3>
-      <p>Scratch, prefs, env facts (90-day age-out), task records, reflections, cold archive. JSONL + grep on purpose — recall without prompt cost.</p>
-    </div>
-    <div class="card">
-      <div class="icon">🧾</div>
-      <h3>Append-only JSONL replay</h3>
-      <p>One log per task, one JSON per record. <code class="inline">evo replay</code> rehydrates any session; <code class="inline">doctor closure</code> audits log integrity.</p>
-    </div>
-    <div class="card">
-      <div class="icon">💰</div>
-      <h3>Three-tier budget engine</h3>
-      <p>Per-task hard stop, per-day soft warn + hard cap (4×), per-month hard cap. <code class="inline">doctor tokens</code> reports 7-day / 30-day spend.</p>
-    </div>
-    <div class="card">
-      <div class="icon">🛡</div>
-      <h3>P0–P8 permission ladder</h3>
-      <p>Ordered ladder enforced inside <code class="inline">evo-policy::Permission</code>. Default ceiling P1; channel senders hard-capped at P4.</p>
-    </div>
-    <div class="card">
-      <div class="icon">⌨</div>
-      <h3>One CLI, two binaries</h3>
-      <p><code class="inline">evoclaw</code> long form, <code class="inline">evo</code> 3-letter alias — same library. REPL ships Tab completion for slash commands, ↑↓/Ctrl-P/N history, Ctrl-R reverse search, and Ctrl-A/E/U/K/W line editing.</p>
-    </div>
-    <div class="card">
-      <div class="icon">🌐</div>
-      <h3>Headless browser tools</h3>
-      <p>Five built-in Chromium tools at P3 permission: <code class="inline">browser_open</code> · <code class="inline">browser_screenshot</code> · <code class="inline">browser_click</code> · <code class="inline">browser_type</code> · <code class="inline">browser_fetch_text</code>. Web tasks with no external MCP required.</p>
-    </div>
-  </div>
-</section>
+            <!-- =============== Capability cards (9) =============== -->
+            <section id="features">
+                <div class="head">
+                    <span class="tag">What's in the box</span>
+                    <h2>Nine load-bearing capabilities.</h2>
+                    <p>
+                        Every primitive that makes a long-running agent runtime
+                        trustworthy enough to leave unattended on your real
+                        machine.
+                    </p>
+                </div>
+                <div class="grid grid-4">
+                    <div class="card">
+                        <div class="icon">🌳</div>
+                        <h3>Self-evolving Skill Tree</h3>
+                        <p>
+                            YAML skills with five-state EWMA lifecycle (Draft →
+                            Candidate → Active → Degraded → Deprecated). Active
+                            skills feed the next planner round.
+                        </p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">🔒</div>
+                        <h3>Secret-redaction barrier</h3>
+                        <p>
+                            Vault-registered values become
+                            <code class="inline">${SECRET:NAME}</code>;
+                            unregistered shapes become
+                            <code class="inline">[REDACTED:kind:fp]</code>.
+                            Idempotent at six boundary points.
+                        </p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">📉</div>
+                        <h3>Token economy</h3>
+                        <p>
+                            Schema fingerprint, ephemeral cache, summary
+                            protocol, head+tail truncation, periodic
+                            compression. Long task ≈ ⅓ of naive spend.
+                        </p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">🧠</div>
+                        <h3>Layered memory L0–L5</h3>
+                        <p>
+                            Scratch, prefs, env facts (90-day age-out), task
+                            records, reflections, cold archive. JSONL + grep on
+                            purpose — recall without prompt cost.
+                        </p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">🧾</div>
+                        <h3>Append-only JSONL replay</h3>
+                        <p>
+                            One log per task, one JSON per record.
+                            <code class="inline">evo replay</code> rehydrates
+                            any session;
+                            <code class="inline">doctor closure</code> audits
+                            log integrity.
+                        </p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">💰</div>
+                        <h3>Three-tier budget engine</h3>
+                        <p>
+                            Per-task hard stop, per-day soft warn + hard cap
+                            (4×), per-month hard cap.
+                            <code class="inline">doctor tokens</code> reports
+                            7-day / 30-day spend.
+                        </p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">🛡</div>
+                        <h3>P0–P8 permission ladder</h3>
+                        <p>
+                            Ordered ladder enforced inside
+                            <code class="inline">evo-policy::Permission</code>.
+                            Default ceiling P1; channel senders hard-capped at
+                            P4.
+                        </p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">⌨</div>
+                        <h3>One CLI, two binaries</h3>
+                        <p>
+                            <code class="inline">evoclaw</code> long form,
+                            <code class="inline">evo</code> 3-letter alias —
+                            same library. REPL ships Tab completion for slash
+                            commands, ↑↓/Ctrl-P/N history, Ctrl-R reverse
+                            search, and Ctrl-A/E/U/K/W line editing.
+                        </p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">🌐</div>
+                        <h3>Headless browser tools</h3>
+                        <p>
+                            Five built-in Chromium tools at P3 permission:
+                            <code class="inline">browser_open</code> ·
+                            <code class="inline">browser_screenshot</code> ·
+                            <code class="inline">browser_click</code> ·
+                            <code class="inline">browser_type</code> ·
+                            <code class="inline">browser_fetch_text</code>. Web
+                            tasks with no external MCP required.
+                        </p>
+                    </div>
+                </div>
+            </section>
 
-<!-- =============== How it works =============== -->
-<section id="how">
-  <div class="head">
-    <span class="tag">How it works</span>
-    <h2>From clone to first task in <span class="accent">three steps</span>.</h2>
-    <p>Build, configure, run. The wizard takes care of the rest.</p>
-  </div>
-  <div class="steps">
-    <div class="step">
-      <h3>Build</h3>
-      <p>Clone the repo and let cargo do its thing. Single static binary, ~30 s on a warm cache.</p>
-<pre><span class="c"># Rust 1.80+</span>
+            <!-- =============== How it works =============== -->
+            <section id="how">
+                <div class="head">
+                    <span class="tag">How it works</span>
+                    <h2>
+                        From clone to first task in
+                        <span class="accent">three steps</span>.
+                    </h2>
+                    <p>
+                        Build, configure, run. The wizard takes care of the
+                        rest.
+                    </p>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <h3>Build</h3>
+                        <p>
+                            Clone the repo and let cargo do its thing. Single
+                            static binary, ~30 s on a warm cache.
+                        </p>
+                        <pre><span class="c"># Rust 1.80+</span>
 git clone https://github.com/<span class="k">DevEloLin/evoclaw</span>
 cd evoclaw &amp;&amp; cargo build --release</pre>
-    </div>
-    <div class="step">
-      <h3>Configure</h3>
-      <p>First launch runs an interactive wizard: pick a provider (17 vendors), drop in an API key, choose a model.</p>
-<pre>./target/release/evoclaw
+                    </div>
+                    <div class="step">
+                        <h3>Configure</h3>
+                        <p>
+                            First launch runs an interactive wizard: pick a
+                            provider (17 vendors), drop in an API key, choose a
+                            model.
+                        </p>
+                        <pre>./target/release/evoclaw
 <span class="c"># wizard saves ~/.evoclaw/config.toml</span>
 <span class="c"># keys go to ~/.evoclaw/secrets/vault.json (chmod 600)</span></pre>
-    </div>
-    <div class="step">
-      <h3>Run</h3>
-      <p>Type a task. EvoClaw plans, calls tools, observes, replans, finishes — then quietly distills a Skill.</p>
-<pre>evo run <span class="s">"diagnose why my SSH hangs"</span>
+                    </div>
+                    <div class="step">
+                        <h3>Run</h3>
+                        <p>
+                            Type a task. EvoClaw plans, calls tools, observes,
+                            replans, finishes — then quietly distills a Skill.
+                        </p>
+                        <pre>evo run <span class="s">"diagnose why my SSH hangs"</span>
 evo replay   <span class="c"># full reflection trace</span>
 evo skill tree</pre>
-    </div>
-  </div>
-</section>
+                    </div>
+                </div>
+            </section>
 
-<!-- =============== Integrations =============== -->
-<section id="integrations">
-  <div class="head">
-    <span class="tag">Integrations</span>
-    <h2>Works with <span class="accent">everything</span> you already use.</h2>
-    <p>17 model vendors, 7 ACP coding agents, 7 MCP servers, 4 local runtimes — all standard-protocol, no proprietary glue.</p>
-  </div>
-  <div class="tabs">
-    <input type="radio" name="integ" id="t1" checked>
-    <input type="radio" name="integ" id="t2">
-    <input type="radio" name="integ" id="t3">
-    <input type="radio" name="integ" id="t4">
-    <div class="labels">
-      <label for="t1">AI Models <span class="count">17</span></label>
-      <label for="t2">ACP agents <span class="count">7</span></label>
-      <label for="t3">MCP servers <span class="count">7</span></label>
-      <label for="t4">Local runtimes <span class="count">4</span></label>
-    </div>
-    <div class="panel" id="p1">
-      <div class="pill-grid">
-        <span class="pill">DeepSeek</span><span class="pill">Kimi</span><span class="pill">Qwen</span>
-        <span class="pill">Doubao</span><span class="pill">Zhipu</span><span class="pill">Baidu</span>
-        <span class="pill">MiniMax</span><span class="pill">StepFun</span><span class="pill">Hunyuan</span>
-        <span class="pill">OpenAI</span><span class="pill">Anthropic</span><span class="pill">Gemini</span>
-        <span class="pill">Mistral</span><span class="pill">Groq</span><span class="pill">OpenRouter</span>
-        <span class="pill">Together</span><span class="pill">Fireworks</span>
-      </div>
-    </div>
-    <div class="panel" id="p2">
-      <div class="pill-grid">
-        <span class="pill">Claude Code</span><span class="pill">Codex</span><span class="pill">Cursor</span>
-        <span class="pill">GitHub Copilot</span><span class="pill">Gemini CLI</span>
-        <span class="pill">Aider</span><span class="pill">Qwen Code</span>
-      </div>
-      <p style="color:var(--muted);font-size:14px;margin:18px 0 0">Set <code class="inline">provider = "acp:claude"</code> in <code class="inline">~/.evoclaw/config.toml</code> — EvoClaw spawns the upstream CLI as a subprocess and routes prompts via JSON-RPC over stdio.</p>
-    </div>
-    <div class="panel" id="p3">
-      <div class="pill-grid">
-        <span class="pill">filesystem</span><span class="pill">GitHub</span><span class="pill">fetch</span>
-        <span class="pill">time</span><span class="pill">Brave Search</span>
-        <span class="pill">Postgres</span><span class="pill">Slack</span>
-        <span class="pill muted">+ bring your own</span>
-      </div>
-      <p style="color:var(--muted);font-size:14px;margin:18px 0 0">Tools surface as <code class="inline">mcp__server__tool</code> in the registry. Auth env vars are captured at <code class="inline">mcp add</code> time and never reach the model.</p>
-    </div>
-    <div class="panel" id="p4">
-      <div class="pill-grid">
-        <span class="pill">Ollama</span><span class="pill">vLLM</span>
-        <span class="pill">llama.cpp</span><span class="pill">any OpenAI-compatible URL</span>
-      </div>
-      <p style="color:var(--muted);font-size:14px;margin:18px 0 0">Point <code class="inline">model.base_url</code> at <code class="inline">http://localhost:11434/v1</code> for Ollama, or any local server. Skip the API key. Redactor and skill tree still work.</p>
-    </div>
-  </div>
-</section>
+            <!-- =============== Integrations =============== -->
+            <section id="integrations">
+                <div class="head">
+                    <span class="tag">Integrations</span>
+                    <h2>
+                        Works with <span class="accent">everything</span> you
+                        already use.
+                    </h2>
+                    <p>
+                        17 model vendors, 7 ACP coding agents, 7 MCP servers, 4
+                        local runtimes — all standard-protocol, no proprietary
+                        glue.
+                    </p>
+                </div>
+                <div class="tabs">
+                    <input type="radio" name="integ" id="t1" checked />
+                    <input type="radio" name="integ" id="t2" />
+                    <input type="radio" name="integ" id="t3" />
+                    <input type="radio" name="integ" id="t4" />
+                    <div class="labels">
+                        <label for="t1"
+                            >AI Models <span class="count">17</span></label
+                        >
+                        <label for="t2"
+                            >ACP agents <span class="count">7</span></label
+                        >
+                        <label for="t3"
+                            >MCP servers <span class="count">7</span></label
+                        >
+                        <label for="t4"
+                            >Local runtimes <span class="count">4</span></label
+                        >
+                    </div>
+                    <div class="panel" id="p1">
+                        <div class="pill-grid">
+                            <span class="pill">DeepSeek</span
+                            ><span class="pill">Kimi</span
+                            ><span class="pill">Qwen</span>
+                            <span class="pill">Doubao</span
+                            ><span class="pill">Zhipu</span
+                            ><span class="pill">Baidu</span>
+                            <span class="pill">MiniMax</span
+                            ><span class="pill">StepFun</span
+                            ><span class="pill">Hunyuan</span>
+                            <span class="pill">OpenAI</span
+                            ><span class="pill">Anthropic</span
+                            ><span class="pill">Gemini</span>
+                            <span class="pill">Mistral</span
+                            ><span class="pill">Groq</span
+                            ><span class="pill">OpenRouter</span>
+                            <span class="pill">Together</span
+                            ><span class="pill">Fireworks</span>
+                        </div>
+                    </div>
+                    <div class="panel" id="p2">
+                        <div class="pill-grid">
+                            <span class="pill">Claude Code</span
+                            ><span class="pill">Codex</span
+                            ><span class="pill">Cursor</span>
+                            <span class="pill">GitHub Copilot</span
+                            ><span class="pill">Gemini CLI</span>
+                            <span class="pill">Aider</span
+                            ><span class="pill">Qwen Code</span>
+                        </div>
+                        <p
+                            style="
+                                color: var(--muted);
+                                font-size: 14px;
+                                margin: 18px 0 0;
+                            "
+                        >
+                            Set
+                            <code class="inline">provider = "acp:claude"</code>
+                            in
+                            <code class="inline">~/.evoclaw/config.toml</code> —
+                            EvoClaw spawns the upstream CLI as a subprocess and
+                            routes prompts via JSON-RPC over stdio.
+                        </p>
+                    </div>
+                    <div class="panel" id="p3">
+                        <div class="pill-grid">
+                            <span class="pill">filesystem</span
+                            ><span class="pill">GitHub</span
+                            ><span class="pill">fetch</span>
+                            <span class="pill">time</span
+                            ><span class="pill">Brave Search</span>
+                            <span class="pill">Postgres</span
+                            ><span class="pill">Slack</span>
+                            <span class="pill muted">+ bring your own</span>
+                        </div>
+                        <p
+                            style="
+                                color: var(--muted);
+                                font-size: 14px;
+                                margin: 18px 0 0;
+                            "
+                        >
+                            Tools surface as
+                            <code class="inline">mcp__server__tool</code> in the
+                            registry. Auth env vars are captured at
+                            <code class="inline">mcp add</code> time and never
+                            reach the model.
+                        </p>
+                    </div>
+                    <div class="panel" id="p4">
+                        <div class="pill-grid">
+                            <span class="pill">Ollama</span
+                            ><span class="pill">vLLM</span>
+                            <span class="pill">llama.cpp</span
+                            ><span class="pill">any OpenAI-compatible URL</span>
+                        </div>
+                        <p
+                            style="
+                                color: var(--muted);
+                                font-size: 14px;
+                                margin: 18px 0 0;
+                            "
+                        >
+                            Point <code class="inline">model.base_url</code> at
+                            <code class="inline"
+                                >http://localhost:11434/v1</code
+                            >
+                            for Ollama, or any local server. Skip the API key.
+                            Redactor and skill tree still work.
+                        </p>
+                    </div>
+                </div>
+            </section>
 
-<!-- =============== Quickstart code =============== -->
-<section id="quickstart">
-  <div class="head">
-    <span class="tag">Quickstart</span>
-    <h2>Pick how you want to install.</h2>
-    <p>No registry account. No telemetry. No "create an account first."</p>
-  </div>
-  <div class="tabs qs-tabs">
-    <input type="radio" name="qs" id="q1" checked>
-    <input type="radio" name="qs" id="q2">
-    <input type="radio" name="qs" id="q3">
-    <div class="labels">
-      <label for="q1">Build from source</label>
-      <label for="q2">cargo install</label>
-      <label for="q3">First task</label>
-    </div>
-    <style>
-      .qs-tabs #q1:checked ~ .labels label[for=q1],
-      .qs-tabs #q2:checked ~ .labels label[for=q2],
-      .qs-tabs #q3:checked ~ .labels label[for=q3]{color:var(--accent);background:var(--surface);
-         box-shadow:inset 0 -2px 0 var(--accent)}
-      .qs-tabs #q1:checked ~ #qs-p1,
-      .qs-tabs #q2:checked ~ #qs-p2,
-      .qs-tabs #q3:checked ~ #qs-p3{display:block}
-    </style>
-    <div class="panel" id="qs-p1">
-<pre><span class="c"># macOS · Linux · Windows — needs Rust 1.80+</span>
+            <!-- =============== Quickstart code =============== -->
+            <section id="quickstart">
+                <div class="head">
+                    <span class="tag">Quickstart</span>
+                    <h2>Pick how you want to install.</h2>
+                    <p>
+                        No registry account. No telemetry. No "create an account
+                        first."
+                    </p>
+                </div>
+                <div class="tabs qs-tabs">
+                    <input type="radio" name="qs" id="q1" checked />
+                    <input type="radio" name="qs" id="q2" />
+                    <input type="radio" name="qs" id="q3" />
+                    <div class="labels">
+                        <label for="q1">Build from source</label>
+                        <label for="q2">cargo install</label>
+                        <label for="q3">First task</label>
+                    </div>
+                    <style>
+                        .qs-tabs #q1:checked ~ .labels label[for="q1"],
+                        .qs-tabs #q2:checked ~ .labels label[for="q2"],
+                        .qs-tabs #q3:checked ~ .labels label[for="q3"] {
+                            color: var(--accent);
+                            background: var(--surface);
+                            box-shadow: inset 0 -2px 0 var(--accent);
+                        }
+                        .qs-tabs #q1:checked ~ #qs-p1,
+                        .qs-tabs #q2:checked ~ #qs-p2,
+                        .qs-tabs #q3:checked ~ #qs-p3 {
+                            display: block;
+                        }
+                    </style>
+                    <div class="panel" id="qs-p1">
+                        <pre><span class="c"># macOS · Linux · Windows — needs Rust 1.80+</span>
 git clone https://github.com/<span class="k">DevEloLin/evoclaw</span> &amp;&amp; cd evoclaw
 cargo build --workspace --release
 ./target/release/evoclaw                 <span class="c"># first launch runs interactive setup wizard</span></pre>
-      <div class="note">Drops you in the REPL after the wizard saves <code class="inline">~/.evoclaw/config.toml</code>.</div>
-    </div>
-    <div class="panel" id="qs-p2">
-<pre><span class="c"># Pulls and installs both binaries (evoclaw + evo) into ~/.cargo/bin</span>
+                        <div class="note">
+                            Drops you in the REPL after the wizard saves
+                            <code class="inline">~/.evoclaw/config.toml</code>.
+                        </div>
+                    </div>
+                    <div class="panel" id="qs-p2">
+                        <pre><span class="c"># Pulls and installs both binaries (evoclaw + evo) into ~/.cargo/bin</span>
 cargo install --locked --git https://github.com/<span class="k">DevEloLin/evoclaw</span> evo-cli
 
 evoclaw                                  <span class="c"># long form</span>
 evo                                      <span class="c"># 3-letter alias — same code path</span></pre>
-      <div class="note">Direct-from-git is the supported path until v0.3.6 publishes to crates.io.</div>
-    </div>
-    <div class="panel" id="qs-p3">
-<pre><span class="c"># Register a secret — value never leaves your machine</span>
+                        <div class="note">
+                            Direct-from-git is the supported path until v0.3.6
+                            publishes to crates.io.
+                        </div>
+                    </div>
+                    <div class="panel" id="qs-p3">
+                        <pre><span class="c"># Register a secret — value never leaves your machine</span>
 evo secret add github_pat ghp_yourActualValueHere
 
 <span class="c"># Run a task</span>
@@ -713,215 +1961,550 @@ evo run <span class="s">"diagnose why my SSH hangs intermittently"</span>
 
 <span class="c"># Replay any past task — full reflection / cost / tool trace</span>
 evo replay</pre>
-      <div class="note">Want a local web chat? <code class="inline">evo gateway --bind 127.0.0.1:7878 --token mychat</code> opens a Bearer-protected page on localhost.</div>
-    </div>
-  </div>
-</section>
+                        <div class="note">
+                            Want a local web chat?
+                            <code class="inline"
+                                >evo gateway --bind 127.0.0.1:7878 --token
+                                mychat</code
+                            >
+                            opens a Bearer-protected page on localhost.
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-<!-- =============== REPL Demo =============== -->
-<section id="demo">
-  <div class="head">
-    <span class="tag">Live demo</span>
-    <h2>This is what a session looks like.</h2>
-    <p>Plan, run tools, observe, replan — then a Skill is quietly distilled to disk.</p>
-  </div>
-  <div class="repl">
-    <div class="titlebar">
-      <div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
-      <span class="name">evo · ~/work/myrepo</span>
-    </div>
-    <div class="body"><span class="acc">───────────────────────────────────────────────────────────────────</span>
-  <span class="dim">\\  ▄   ▄  //</span>                  <span class="acc">Quick start</span>
-  <span class="acc">  ▄███████▄  </span>                  <span class="acc">──────────────────────────</span>
-  <span class="acc">  █       █  </span>                  <span class="acc">/help   </span><span class="dim"> list all commands</span>
-  <span class="acc">  █ ▀▀ ▀▀ █  </span>                  <span class="acc">/login  </span><span class="dim"> configure auth</span>
-  <span class="acc">  ▀█▄▄▄▄▄█▀  </span>                  <span class="acc">/doctor </span><span class="dim"> health check</span>
-  <span class="acc">    ▄▄ ▄▄    </span>                  <span class="acc">/skill  </span><span class="dim"> browse skills</span>
-  <span class="dim">//  ██ ██  \\</span>
-                                 <span class="acc">Status</span>
-  <span class="acc">EvoClaw</span><span class="dim">  v0.3.6                ──────────────────────────</span>
-  <span class="dim">self-evolving agent runtime     auth   </span>  <span class="ai">✓ ready</span>
-                                 <span class="dim">model   deepseek-chat</span>
-  <span class="acc">deepseek</span><span class="dim">  ·  deepseek-chat</span>
-  <span class="dim">~/.evoclaw                      Ctrl-D to exit  ·  /help</span>
+            <!-- =============== REPL Demo =============== -->
+            <section id="demo">
+                <div class="head">
+                    <span class="tag">Live demo</span>
+                    <h2>This is what a session looks like.</h2>
+                    <p>
+                        Plan, run tools, observe, replan — then a Skill is
+                        quietly distilled to disk.
+                    </p>
+                </div>
+                <div class="repl">
+                    <div class="titlebar">
+                        <div class="dots">
+                            <span class="r"></span><span class="y"></span
+                            ><span class="g"></span>
+                        </div>
+                        <span class="name">evo · ~/work/myrepo</span>
+                    </div>
+                    <div class="body">
+                        <span class="acc"
+                            >───────────────────────────────────────────────────────────────────</span
+                        >
+                        <span class="dim">\\ ▄ ▄ //</span>
+                        <span class="acc">Quick start</span>
+                        <span class="acc"> ▄███████▄ </span>
+                        <span class="acc">──────────────────────────</span>
+                        <span class="acc"> █ █ </span>
+                        <span class="acc">/help </span
+                        ><span class="dim"> list all commands</span>
+                        <span class="acc"> █ ▀▀ ▀▀ █ </span>
+                        <span class="acc">/login </span
+                        ><span class="dim"> configure auth</span>
+                        <span class="acc"> ▀█▄▄▄▄▄█▀ </span>
+                        <span class="acc">/doctor </span
+                        ><span class="dim"> health check</span>
+                        <span class="acc"> ▄▄ ▄▄ </span>
+                        <span class="acc">/skill </span
+                        ><span class="dim"> browse skills</span>
+                        <span class="dim">// ██ ██ \\</span>
+                        <span class="acc">Status</span>
+                        <span class="acc">EvoClaw</span
+                        ><span class="dim">
+                            v0.3.6 ──────────────────────────</span
+                        >
+                        <span class="dim"
+                            >self-evolving agent runtime auth
+                        </span>
+                        <span class="ai">✓ ready</span>
+                        <span class="dim">model deepseek-chat</span>
+                        <span class="acc">deepseek</span
+                        ><span class="dim"> · deepseek-chat</span>
+                        <span class="dim"
+                            >~/.evoclaw Ctrl-D to exit · /help</span
+                        >
 
-  <span class="ai">✓ ready</span><span class="dim">  secrets file: ~/.evoclaw/secrets/deepseek.key</span>
-<span class="acc">───────────────────────────────────────────────────────────────────</span>
+                        <span class="ai">✓ ready</span
+                        ><span class="dim">
+                            secrets file: ~/.evoclaw/secrets/deepseek.key</span
+                        >
+                        <span class="acc"
+                            >───────────────────────────────────────────────────────────────────</span
+                        >
 
-<span class="acc">─ input ───────────────────────────────────────────────────────────</span>
-<span class="dim">  ▷ Type your message and press Enter to send  ·  /help for commands</span>
-<span class="acc">───────────────────────────────────────────────────────────────────</span>
-<span class="dim">shortcuts: Tab /cmd  ·  ↑↓/Ctrl-P/N history  ·  Ctrl-R search  ·  Ctrl-C quit</span>
+                        <span class="acc"
+                            >─ input
+                            ───────────────────────────────────────────────────────────</span
+                        >
+                        <span class="dim">
+                            ▷ Type your message and press Enter to send · /help
+                            for commands</span
+                        >
+                        <span class="acc"
+                            >───────────────────────────────────────────────────────────────────</span
+                        >
+                        <span class="dim"
+                            >shortcuts: Tab /cmd · ↑↓/Ctrl-P/N history · Ctrl-R
+                            search · Ctrl-C quit</span
+                        >
 
-<span class="ai">You · 12:00:05</span>
-summarise every Cargo.toml under ~/work/myrepo
-<span class="ai">───────────────────────────────────────────────────────────────────</span>
+                        <span class="ai">You · 12:00:05</span>
+                        summarise every Cargo.toml under ~/work/myrepo
+                        <span class="ai"
+                            >───────────────────────────────────────────────────────────────────</span
+                        >
 
-<span class="acc">───────────────────────────────────────────────────────────────────
-EvoClaw · deepseek · 12:00:05 · streaming · 2.8s</span>
-Found 7 Cargo.toml files under ~/work/myrepo…
-<span class="acc">───────────────────────────────────────────────────────────────────</span>
-<span class="dim">task: running deepseek · elapsed 2.8s</span>
+                        <span class="acc"
+                            >───────────────────────────────────────────────────────────────────
+                            EvoClaw · deepseek · 12:00:05 · streaming ·
+                            2.8s</span
+                        >
+                        Found 7 Cargo.toml files under ~/work/myrepo…
+                        <span class="acc"
+                            >───────────────────────────────────────────────────────────────────</span
+                        >
+                        <span class="dim"
+                            >task: running deepseek · elapsed 2.8s</span
+                        >
 
-<span class="acc">─ input ───────────────────────────────────────────────────────────</span>
-<span class="dim">  ▷ Type your message and press Enter to send  ·  /help for commands</span>
-<span class="acc">───────────────────────────────────────────────────────────────────</span>
-<span class="dim">shortcuts: Tab /cmd  ·  ↑↓/Ctrl-P/N history  ·  Ctrl-R search  ·  Ctrl-C quit</span>
+                        <span class="acc"
+                            >─ input
+                            ───────────────────────────────────────────────────────────</span
+                        >
+                        <span class="dim">
+                            ▷ Type your message and press Enter to send · /help
+                            for commands</span
+                        >
+                        <span class="acc"
+                            >───────────────────────────────────────────────────────────────────</span
+                        >
+                        <span class="dim"
+                            >shortcuts: Tab /cmd · ↑↓/Ctrl-P/N history · Ctrl-R
+                            search · Ctrl-C quit</span
+                        >
 
-<span class="acc">EvoClaw · deepseek · 12:00:09 · 3.4s · 482↑ 118↓ 342cached</span>
-Found 7 Cargo.toml files under ~/work/myrepo.
+                        <span class="acc"
+                            >EvoClaw · deepseek · 12:00:09 · 3.4s · 482↑ 118↓
+                            342cached</span
+                        >
+                        Found 7 Cargo.toml files under ~/work/myrepo. Written to
+                        cargo-toml-summary.txt: evoclaw 0.3.6, evo-cli,
+                        evo-core, evo-tools, evo-policy, evo-providers,
+                        evo-gateway — all workspace members pinned to v0.3.6.
+                        <span class="acc"
+                            >───────────────────────────────────────────────────────────────────</span
+                        >
 
-Written to cargo-toml-summary.txt:
-  evoclaw 0.3.6, evo-cli, evo-core, evo-tools,
-  evo-policy, evo-providers, evo-gateway
-  — all workspace members pinned to v0.3.6.
-<span class="acc">───────────────────────────────────────────────────────────────────</span>
+                        <span class="acc"
+                            >───────────────────────────────────────────────────────────────────</span
+                        >
+                        <span class="dim">usage: 482↑ 118↓ 342cached</span>
 
-<span class="acc">───────────────────────────────────────────────────────────────────</span>
-<span class="dim">usage: 482↑ 118↓ 342cached</span>
+                        <span class="acc"
+                            >─ input
+                            ───────────────────────────────────────────────────────────</span
+                        >
+                        <span class="dim"> ▷ </span><span class="you">_</span>
+                        <span class="acc"
+                            >───────────────────────────────────────────────────────────────────</span
+                        >
+                        <span class="dim"
+                            >shortcuts: Tab /cmd · ↑↓/Ctrl-P/N history · Ctrl-R
+                            search · Ctrl-C quit</span
+                        >
+                    </div>
+                </div>
+            </section>
 
-<span class="acc">─ input ───────────────────────────────────────────────────────────</span>
-<span class="dim">  ▷ </span><span class="you">_</span>
-<span class="acc">───────────────────────────────────────────────────────────────────</span>
-<span class="dim">shortcuts: Tab /cmd  ·  ↑↓/Ctrl-P/N history  ·  Ctrl-R search  ·  Ctrl-C quit</span></div>
-  </div>
-</section>
+            <!-- =============== Diagrams =============== -->
+            <section id="diagrams">
+                <div class="head">
+                    <span class="tag">Reference</span>
+                    <h2>Architecture &amp; design diagrams.</h2>
+                    <p>
+                        Two pages, four languages. Architecture covers every
+                        module on the same canvas; Design covers every state
+                        machine, sequence, and closure rule.
+                    </p>
+                </div>
+                <div class="grid grid-2">
+                    <div class="link-card">
+                        <a class="card-link" href="architecture-en.html">
+                            <div class="icon">🏛</div>
+                            <h3>System Architecture →</h3>
+                            <p>
+                                One-page picture · seven-lane layered view (CSS
+                                grid, fans out left-to-right) · runtime
+                                end-to-end loop · redaction barrier · token
+                                economy · ACP / MCP interop · deployment
+                                topology · storage map.
+                            </p>
+                        </a>
+                        <span class="alt"
+                            >also: <a href="architecture-zh.html">中文</a></span
+                        >
+                    </div>
+                    <div class="link-card">
+                        <a class="card-link" href="design-en.html">
+                            <div class="icon">🧩</div>
+                            <h3>Design Diagrams →</h3>
+                            <p>
+                                Task / Skill / Memory FSMs · ER model ·
+                                single-task end-to-end sequence · ACP delegated
+                                loop · MCP tool call · permission ladder ·
+                                13-row closure matrix.
+                            </p>
+                        </a>
+                        <span class="alt"
+                            >also: <a href="design-zh.html">中文</a></span
+                        >
+                    </div>
+                </div>
+            </section>
 
-<!-- =============== Diagrams =============== -->
-<section id="diagrams">
-  <div class="head">
-    <span class="tag">Reference</span>
-    <h2>Architecture &amp; design diagrams.</h2>
-    <p>Two pages, four languages. Architecture covers every module on the same canvas; Design covers every state machine, sequence, and closure rule.</p>
-  </div>
-  <div class="grid grid-2">
-    <div class="link-card">
-      <a class="card-link" href="architecture-en.html">
-        <div class="icon">🏛</div>
-        <h3>System Architecture →</h3>
-        <p>One-page picture · seven-lane layered view (CSS grid, fans out left-to-right) · runtime end-to-end loop · redaction barrier · token economy · ACP / MCP interop · deployment topology · storage map.</p>
-      </a>
-      <span class="alt">also: <a href="architecture-zh.html">中文</a></span>
-    </div>
-    <div class="link-card">
-      <a class="card-link" href="design-en.html">
-        <div class="icon">🧩</div>
-        <h3>Design Diagrams →</h3>
-        <p>Task / Skill / Memory FSMs · ER model · single-task end-to-end sequence · ACP delegated loop · MCP tool call · permission ladder · 13-row closure matrix.</p>
-      </a>
-      <span class="alt">also: <a href="design-zh.html">中文</a></span>
-    </div>
-  </div>
-</section>
+            <!-- =============== Comparison table =============== -->
+            <section id="cost-comparison">
+                <div class="head">
+                    <span class="tag">Side by side</span>
+                    <h2>Hosted SaaS vs <span class="accent">EvoClaw</span>.</h2>
+                    <p>The same questions, asked seven different ways.</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Hosted SaaS agent</th>
+                            <th>EvoClaw</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Where does my code go?</td>
+                            <td>Their backend on every prompt</td>
+                            <td>
+                                The model API you chose; everything else stays
+                                local
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Where do my secrets go?</td>
+                            <td>Their logs if you paste them</td>
+                            <td>
+                                vault.json chmod 600; model only sees
+                                placeholders
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Where do my logs go?</td>
+                            <td>Their server, indexed</td>
+                            <td>
+                                <code class="inline">~/.evoclaw/logs/</code>;
+                                you delete them
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Can I replay last Tuesday's run?</td>
+                            <td>If they kept it</td>
+                            <td>
+                                <code class="inline"
+                                    >evo replay /path/to/log.jsonl</code
+                                >
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Can I run offline?</td>
+                            <td>No</td>
+                            <td>
+                                Yes — point base_url at Ollama / vLLM /
+                                llama.cpp
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Can I work on regulated content?</td>
+                            <td>Probably not</td>
+                            <td>Yes — every byte is on your machine</td>
+                        </tr>
+                        <tr>
+                            <td>Vendor pivot proof?</td>
+                            <td>Start over</td>
+                            <td>Skills, memory, config keep working</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
-<!-- =============== Comparison table =============== -->
-<section id="cost-comparison">
-  <div class="head">
-    <span class="tag">Side by side</span>
-    <h2>Hosted SaaS vs <span class="accent">EvoClaw</span>.</h2>
-    <p>The same questions, asked seven different ways.</p>
-  </div>
-  <table>
-    <thead><tr><th>Question</th><th>Hosted SaaS agent</th><th>EvoClaw</th></tr></thead>
-    <tbody>
-      <tr><td>Where does my code go?</td><td>Their backend on every prompt</td><td>The model API you chose; everything else stays local</td></tr>
-      <tr><td>Where do my secrets go?</td><td>Their logs if you paste them</td><td>vault.json chmod 600; model only sees placeholders</td></tr>
-      <tr><td>Where do my logs go?</td><td>Their server, indexed</td><td><code class="inline">~/.evoclaw/logs/</code>; you delete them</td></tr>
-      <tr><td>Can I replay last Tuesday's run?</td><td>If they kept it</td><td><code class="inline">evo replay /path/to/log.jsonl</code></td></tr>
-      <tr><td>Can I run offline?</td><td>No</td><td>Yes — point base_url at Ollama / vLLM / llama.cpp</td></tr>
-      <tr><td>Can I work on regulated content?</td><td>Probably not</td><td>Yes — every byte is on your machine</td></tr>
-      <tr><td>Vendor pivot proof?</td><td>Start over</td><td>Skills, memory, config keep working</td></tr>
-    </tbody>
-  </table>
-</section>
+            <!-- =============== FAQ =============== -->
+            <section id="faq" class="faq">
+                <div class="head">
+                    <span class="tag">FAQ</span>
+                    <h2>Frequently asked.</h2>
+                    <p>Quick answers. Long ones live in the docs.</p>
+                </div>
+                <details>
+                    <summary>What is EvoClaw, in one sentence?</summary>
+                    <p>
+                        A local-first agent runtime in Rust that learns from
+                        every task, proves its work in append-only JSONL logs,
+                        and never lets a secret you typed reach the model API.
+                    </p>
+                </details>
+                <details>
+                    <summary>Does it work offline?</summary>
+                    <p>
+                        Yes. Point <code class="inline">model.base_url</code> at
+                        <code class="inline">http://localhost:11434/v1</code>
+                        for Ollama, or any local vLLM / llama.cpp server. Skip
+                        the API key step. The redactor and skill tree still
+                        work.
+                    </p>
+                </details>
+                <details>
+                    <summary>
+                        Will my skills survive a re-clone of the repo?
+                    </summary>
+                    <p>
+                        Yes. State lives in
+                        <code class="inline">~/.evoclaw/</code>, not in the
+                        repo. Wipe and rebuild EvoClaw all you want; your
+                        skills, memory, and vault stay put.
+                    </p>
+                </details>
+                <details>
+                    <summary>
+                        Can I share a session log with a coworker?
+                    </summary>
+                    <p>
+                        Yes. Every text field is scrubbed before it's written,
+                        so the JSONL is safe to share without manual review.
+                    </p>
+                </details>
+                <details>
+                    <summary>
+                        What stops the model from echoing my secret right back
+                        into the log?
+                    </summary>
+                    <p>
+                        The redactor scrubs <em>both</em> on the way to the
+                        model and on the way back from it. If the model
+                        surprises us by echoing a registered value, the
+                        assistant text gets scrubbed again before it lands in
+                        the JSONL.
+                    </p>
+                </details>
+                <details>
+                    <summary>Why no vector database?</summary>
+                    <p>
+                        Vector retrieval costs prompt tokens at retrieval time.
+                        Substring matching against typed memory layers (L1
+                        prefs, L2 env facts, L3 task records) hits the same
+                        recall on local-machine workloads at a fraction of the
+                        prompt cost. If you want vectors, plug in an MCP server
+                        with a vector backend.
+                    </p>
+                </details>
+                <details>
+                    <summary>Why Rust?</summary>
+                    <p>
+                        Single static binary, no runtime, no GC pauses; the type
+                        system catches a class of bugs that matter in a
+                        long-running agent runtime. We get all of that without
+                        the C++ tax.
+                    </p>
+                </details>
+                <details>
+                    <summary>How do I switch model providers?</summary>
+                    <p>
+                        Run <code class="inline">evoclaw login</code> and pick a
+                        different one, or edit
+                        <code class="inline">~/.evoclaw/config.toml</code>
+                        directly. EvoClaw supports DeepSeek, Kimi, Qwen, OpenAI,
+                        OpenRouter, Anthropic, GitHub Copilot, Ollama, and any
+                        OpenAI-compatible endpoint.
+                    </p>
+                </details>
+            </section>
 
-<!-- =============== FAQ =============== -->
-<section id="faq" class="faq">
-  <div class="head">
-    <span class="tag">FAQ</span>
-    <h2>Frequently asked.</h2>
-    <p>Quick answers. Long ones live in the docs.</p>
-  </div>
-  <details><summary>What is EvoClaw, in one sentence?</summary><p>A local-first agent runtime in Rust that learns from every task, proves its work in append-only JSONL logs, and never lets a secret you typed reach the model API.</p></details>
-  <details><summary>Does it work offline?</summary><p>Yes. Point <code class="inline">model.base_url</code> at <code class="inline">http://localhost:11434/v1</code> for Ollama, or any local vLLM / llama.cpp server. Skip the API key step. The redactor and skill tree still work.</p></details>
-  <details><summary>Will my skills survive a re-clone of the repo?</summary><p>Yes. State lives in <code class="inline">~/.evoclaw/</code>, not in the repo. Wipe and rebuild EvoClaw all you want; your skills, memory, and vault stay put.</p></details>
-  <details><summary>Can I share a session log with a coworker?</summary><p>Yes. Every text field is scrubbed before it's written, so the JSONL is safe to share without manual review.</p></details>
-  <details><summary>What stops the model from echoing my secret right back into the log?</summary><p>The redactor scrubs <em>both</em> on the way to the model and on the way back from it. If the model surprises us by echoing a registered value, the assistant text gets scrubbed again before it lands in the JSONL.</p></details>
-  <details><summary>Why no vector database?</summary><p>Vector retrieval costs prompt tokens at retrieval time. Substring matching against typed memory layers (L1 prefs, L2 env facts, L3 task records) hits the same recall on local-machine workloads at a fraction of the prompt cost. If you want vectors, plug in an MCP server with a vector backend.</p></details>
-  <details><summary>Why Rust?</summary><p>Single static binary, no runtime, no GC pauses; the type system catches a class of bugs that matter in a long-running agent runtime. We get all of that without the C++ tax.</p></details>
-  <details><summary>How do I switch model providers?</summary><p>Run <code class="inline">evoclaw login</code> and pick a different one, or edit <code class="inline">~/.evoclaw/config.toml</code> directly. EvoClaw supports DeepSeek, Kimi, Qwen, OpenAI, OpenRouter, Anthropic, GitHub Copilot, Ollama, and any OpenAI-compatible endpoint.</p></details>
-</section>
+            <!-- =============== Resources =============== -->
+            <section id="links">
+                <div class="head">
+                    <span class="tag">Resources</span>
+                    <h2>Read, fork, contribute.</h2>
+                    <p>
+                        Everything you need to ship from the same machine you
+                        debug on.
+                    </p>
+                </div>
+                <ul class="res">
+                    <li>
+                        <a href="https://github.com/DevEloLin/evoclaw"
+                            >GitHub repository — code, tests, releases</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            href="https://github.com/DevEloLin/evoclaw/blob/main/version"
+                            >Version: v0.3.6</a
+                        >
+                        ·
+                        <a
+                            href="https://github.com/develolin/EvoClawSite/blob/main/version"
+                            >site/version</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            href="https://github.com/DevEloLin/evoclaw/blob/main/README.md"
+                            >README (English)</a
+                        >
+                        ·
+                        <a
+                            href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/README.md"
+                            >中文 README</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            href="https://github.com/DevEloLin/evoclaw/blob/main/docs/installation.md"
+                            >Installation</a
+                        >
+                        ·
+                        <a
+                            href="https://github.com/DevEloLin/evoclaw/blob/main/docs/getting-started.md"
+                            >Getting started</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            href="https://github.com/DevEloLin/evoclaw/blob/main/docs/usage.md"
+                            >Usage reference</a
+                        >
+                        ·
+                        <a
+                            href="https://github.com/DevEloLin/evoclaw/blob/main/docs/architecture.md"
+                            >Architecture</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            href="https://github.com/DevEloLin/evoclaw/blob/main/docs/contributing.md"
+                            >Contributing</a
+                        >
+                        · MIT licensed
+                    </li>
+                    <li>
+                        <a
+                            href="https://github.com/DevEloLin/evoclaw/blob/main/docs/agents.md"
+                            >External ACP agents</a
+                        >
+                        ·
+                        <a
+                            href="https://github.com/DevEloLin/evoclaw/blob/main/docs/mcp.md"
+                            >MCP servers</a
+                        >
+                    </li>
+                    <li>
+                        <a href="architecture-en.html"
+                            >Architecture diagrams (EN/中文)</a
+                        >
+                        · <a href="design-en.html">Design diagrams (EN/中文)</a>
+                    </li>
+                </ul>
+            </section>
 
-<!-- =============== Resources =============== -->
-<section id="links">
-  <div class="head">
-    <span class="tag">Resources</span>
-    <h2>Read, fork, contribute.</h2>
-    <p>Everything you need to ship from the same machine you debug on.</p>
-  </div>
-  <ul class="res">
-    <li><a href="https://github.com/DevEloLin/evoclaw">GitHub repository — code, tests, releases</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/version">Version: v0.3.6</a> · <a href="https://github.com/develolin/EvoClawSite/blob/main/version">site/version</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/README.md">README (English)</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/zh/README.md">中文 README</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/installation.md">Installation</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/getting-started.md">Getting started</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/usage.md">Usage reference</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/architecture.md">Architecture</a></li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/contributing.md">Contributing</a> · MIT licensed</li>
-    <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/agents.md">External ACP agents</a> · <a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/mcp.md">MCP servers</a></li>
-    <li><a href="architecture-en.html">Architecture diagrams (EN/中文)</a> · <a href="design-en.html">Design diagrams (EN/中文)</a></li>
-  </ul>
-</section>
+            <!-- =============== CTA banner =============== -->
+            <section class="cta-banner">
+                <h2>Start your AI journey today.</h2>
+                <p>
+                    Get your personal AI assistant in minutes. No account, no
+                    telemetry — just a single Rust binary.
+                </p>
+                <div class="row">
+                    <a
+                        class="primary"
+                        href="https://github.com/DevEloLin/evoclaw"
+                        target="_blank"
+                        rel="noopener"
+                        >★ Get Started on GitHub</a
+                    >
+                    <a class="secondary" href="#quickstart">→ Quickstart</a>
+                </div>
+            </section>
+        </main>
 
-<!-- =============== CTA banner =============== -->
-<section class="cta-banner">
-  <h2>Start your AI journey today.</h2>
-  <p>Get your personal AI assistant in minutes. No account, no telemetry — just a single Rust binary.</p>
-  <div class="row">
-    <a class="primary" href="https://github.com/DevEloLin/evoclaw" target="_blank" rel="noopener">★ Get Started on GitHub</a>
-    <a class="secondary" href="#quickstart">→ Quickstart</a>
-  </div>
-</section>
-
-</main>
-
-<footer>
-  <div class="foot-grid">
-    <div>
-      <div class="foot-brand"><img src="image/EvoClaw2.png" alt=""> EvoClaw</div>
-      <div class="foot-tag">Local-first, self-evolving personal AI assistant. Written in Rust. Open source under MIT. Your machine, your data.</div>
-    </div>
-    <div class="foot-col">
-      <h4>Product</h4>
-      <ul>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#integrations">Integrations</a></li>
-        <li><a href="#how">How it works</a></li>
-        <li><a href="#quickstart">Quickstart</a></li>
-      </ul>
-    </div>
-    <div class="foot-col">
-      <h4>Resources</h4>
-      <ul>
-        <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/README.md">README</a></li>
-        <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/getting-started.md">Getting started</a></li>
-        <li><a href="architecture-en.html">Architecture</a></li>
-        <li><a href="design-en.html">Design diagrams</a></li>
-      </ul>
-    </div>
-    <div class="foot-col">
-      <h4>Project</h4>
-      <ul>
-        <li><a href="https://github.com/DevEloLin/evoclaw">GitHub</a></li>
-        <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/docs/contributing.md">Contributing</a></li>
-        <li><a href="https://github.com/DevEloLin/evoclaw/blob/main/LICENSE">MIT License</a></li>
-        <li><a href="zh.html">中文</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="foot-bot">
-    <div>EvoClaw v0.3.6 · MIT licensed · Rust 1.80+</div>
-    <div>No telemetry · No analytics · Your machine, your data.</div>
-  </div>
-</footer>
-
-</body>
+        <footer>
+            <div class="foot-grid">
+                <div>
+                    <div class="foot-brand">
+                        <img src="image/EvoClaw2.png" alt="" /> EvoClaw
+                    </div>
+                    <div class="foot-tag">
+                        Local-first, self-evolving personal AI assistant.
+                        Written in Rust. Open source under MIT. Your machine,
+                        your data.
+                    </div>
+                </div>
+                <div class="foot-col">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#integrations">Integrations</a></li>
+                        <li><a href="#how">How it works</a></li>
+                        <li><a href="#quickstart">Quickstart</a></li>
+                    </ul>
+                </div>
+                <div class="foot-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li>
+                            <a
+                                href="https://github.com/DevEloLin/evoclaw/blob/main/README.md"
+                                >README</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                href="https://github.com/DevEloLin/evoclaw/blob/main/docs/getting-started.md"
+                                >Getting started</a
+                            >
+                        </li>
+                        <li><a href="architecture-en.html">Architecture</a></li>
+                        <li><a href="design-en.html">Design diagrams</a></li>
+                    </ul>
+                </div>
+                <div class="foot-col">
+                    <h4>Project</h4>
+                    <ul>
+                        <li>
+                            <a href="https://github.com/DevEloLin/evoclaw"
+                                >GitHub</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                href="https://github.com/DevEloLin/evoclaw/blob/main/docs/contributing.md"
+                                >Contributing</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                href="https://github.com/DevEloLin/evoclaw/blob/main/LICENSE"
+                                >MIT License</a
+                            >
+                        </li>
+                        <li><a href="zh.html">中文</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="foot-bot">
+                <div>EvoClaw v0.3.6 · MIT licensed · Rust 1.80+</div>
+                <div>
+                    No telemetry · No analytics · Your machine, your data.
+                </div>
+            </div>
+        </footer>
+    </body>
 </html>
